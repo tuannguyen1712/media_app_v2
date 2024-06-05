@@ -33,6 +33,9 @@ private:
     std::stack<Screen *> Screen_stack;
     std::vector<Playlist> List_playlist;    
     std::thread thread_play;
+    int menu = -1, pre_menu = -1;
+    int pre_pli = -1;
+    int pre_media_file_index = -1;
 
     void thread_play_media();
 public:
@@ -59,7 +62,7 @@ public:
 
     bool createPlaylist(const std::string &fileName);
     bool deletePlaylist(const std::string &fileName);
-    void print_files_in_pages(std::vector<std::string> files, const int &page, const int &size, const int &total_page);
+    // void print_files_in_pages(std::vector<std::string> files, const int &page, const int &size, const int &total_page);
 };
 
 // void print_files_in_pages(std::vector<std::string> files, const int &page, const int &size, const int &total_page);
