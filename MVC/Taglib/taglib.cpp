@@ -13,9 +13,21 @@ Media GetMedia(const std::string &path)
         media.artist = tag->artist().to8Bit(true);
         media.album = tag->album().to8Bit(true);
         media.year = tag->year();
-        media.duration = properties->length();
+        media.duration = (long)properties->length();
     }
     return media;
+}
+
+long GetDuration(const std::string &path)
+{
+    long ret;
+    TagLib::FileRef file(TagLib::FileName(path.c_str()));
+    if (!file.isNull() && file.tag())
+    {
+        TagLib::AudioProperties *properties = file.audioProperties();
+        ret = (long)properties->length();
+    }
+    return ret;
 }
 
 std::string GetName(const std::string &path)

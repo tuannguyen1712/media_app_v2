@@ -2,6 +2,8 @@
 #include <string>
 #include <cstring>
 
+//update
+
 // const char *ext1 = ".c";
 // const char *ext2 = ".cpp";
 
@@ -11,12 +13,14 @@ const char *ext2 = ".mp4";
 std::string opt;
 
 std::vector<std::string> list_files;
+std::vector<std::string> playing_list;
 int cnt = 0;
 int page = 0;
 int pli = 0;
 int total_page = 0;
 
-int media_file_index = 0;
+int media_file_index = 0; // for choose media file when play media file
+int file_index = 0;       // for choose media file when not play media file
 
 Mix_Music *music = NULL;
 volatile int is_play = 0;
@@ -181,8 +185,8 @@ void Application::Screen_find_result_act()
     opt = Screen_stack.top()->getChoice();
     try
     {
-        media_file_index = std::stoi(opt) - 1;
-        if (media_file_index + 1 <= size && pathExists(const_cast<char *>(list_files[media_file_index].c_str())))
+        file_index = std::stoi(opt) - 1;
+        if (file_index + 1 <= size && pathExists(const_cast<char *>(list_files[file_index].c_str())))
         {
             Screen_stack.push(new Screen_media_detail);
         }
@@ -336,12 +340,16 @@ void Application::Screen_playlist_element_act()
     Screen_stack.top()->print_playlist_name(pli);
     size = List_playlist[pli].__list.size();
     total_page = (size % FILES_PER_PAGE == 0) ? (size / FILES_PER_PAGE) : (size / FILES_PER_PAGE) + 1;
-    Screen_stack.top()->printMedia(page, total_page);
+    Screen_stack.top()->printMedia(page, total_page); 
+    if (!playing_list.empty())
+    {
+        std::cout << media_file_index << ":" << file_index << ": " << playing_list[0] << std::endl;
+    }
     opt = Screen_stack.top()->getChoice();
     try
     {
-        media_file_index = std::stoi(opt) - 1;
-        if (media_file_index + 1 <= size && pathExists(const_cast<char *>(List_playlist[pli].__list[media_file_index].c_str())))
+        file_index = std::stoi(opt) - 1;
+        if (file_index + 1 <= size && pathExists(const_cast<char *>(List_playlist[pli].__list[file_index].c_str())))
         {
             Screen_stack.push(new Screen_media_detail);
         }
@@ -547,7 +555,7 @@ void Application::Screen_playlist_rename_act()
 
 void Application::Screen_media_detail_act()
 {
-    Screen_stack.top()->display(media_file_index);
+    Screen_stack.top()->display(file_index);
     opt = Screen_stack.top()->getChoice();
     if (opt == "B" || opt == "b")
     {
@@ -556,8 +564,9 @@ void Application::Screen_media_detail_act()
     }
     else if (opt == "P" || opt == "p")
     {
-        // multithread
+        //multithread
         is_back = 0;
+        media_file_index = file_index;
         if (!is_play) {
             pre_menu = menu;
             pre_pli = pli;
@@ -576,12 +585,17 @@ void Application::Screen_media_detail_act()
             if (list_files.empty())
             {
                 // find_files(const_cast<char *>(opt.c_str()), list_files, cnt);
-                music = Mix_LoadMUS(const_cast<char *>(List_playlist[pli].__list[media_file_index].c_str()));
+                playing_list.clear();
+                playing_list.assign(List_playlist[pli].__list.begin(), List_playlist[pli].__list.end());
+                // music = Mix_LoadMUS(const_cast<char *>(List_playlist[pli].__list[media_file_index].c_str()));
             }
             else
             {
-                music = Mix_LoadMUS(const_cast<char *>(list_files[media_file_index].c_str()));
+                playing_list.clear();
+                playing_list.assign(list_files.begin(), list_files.end());
+                // music = Mix_LoadMUS(const_cast<char *>(list_files[media_file_index].c_str()));
             }
+            music = Mix_LoadMUS(const_cast<char *>(playing_list[media_file_index].c_str()));
             if (!music)
             {
                 std::cerr << "Failed to load music: " << Mix_GetError() << std::endl;
@@ -624,13 +638,15 @@ void Application::Screen_media_detail_act()
             }
             if (list_files.empty())
             {
-                // find_files(const_cast<char *>(opt.c_str()), list_files, cnt);
-                music = Mix_LoadMUS(const_cast<char *>(List_playlist[pli].__list[media_file_index].c_str()));
+                playing_list.clear();
+                playing_list.assign(List_playlist[pli].__list.begin(), List_playlist[pli].__list.end());
             }
             else
             {
-                music = Mix_LoadMUS(const_cast<char *>(list_files[media_file_index].c_str()));
+                playing_list.clear();
+                playing_list.assign(list_files.begin(), list_files.end());
             }
+            music = Mix_LoadMUS(const_cast<char *>(playing_list[media_file_index].c_str()));
             if (!music)
             {
                 std::cerr << "Failed to load music: " << Mix_GetError() << std::endl;
@@ -664,7 +680,7 @@ void Application::Screen_media_detail_act()
 void Application::Screen_media_rename_act()
 {
 
-    Screen_stack.top()->display(media_file_index);
+    Screen_stack.top()->display(file_index);
     opt = Screen_stack.top()->getChoice();
     if (opt == "B" || opt == "b")
     {
@@ -675,13 +691,13 @@ void Application::Screen_media_rename_act()
     {
         if (list_files.empty())
         {
-            Edit_Title(List_playlist[pli].__list[media_file_index], opt);
+            Edit_Title(List_playlist[pli].__list[file_index], opt);
         }
         else
         {
-            Edit_Title(list_files[media_file_index], opt);
+            Edit_Title(list_files[file_index], opt);
         }
-        Screen_stack.top()->media[media_file_index].name = opt;
+        Screen_stack.top()->media[file_index].name = opt;
         delete Screen_stack.top();
         Screen_stack.pop();
     }
@@ -694,64 +710,31 @@ void Application::Screen_play_media_act()
     try
     {
         int ind = std::stoi(opt) - 1;
-        if (list_files.empty())
+        if (std::filesystem::exists(playing_list[ind]))
         {
-            if (std::filesystem::exists(List_playlist[pli].__list[ind]))
+            is_fst = 1;
+            media_file_index = ind;
+            last = time(NULL);
+            if (music != NULL)
             {
-                is_fst = 1;
-                media_file_index = ind;
-                last = time(NULL);
-                if (music != NULL)
-                {
-                    Mix_FreeMusic(music);
-                    music = NULL;
-                }
-                music = Mix_LoadMUS(const_cast<char *>(List_playlist[pli].__list[media_file_index].c_str()));
-                if (!music)
-                {
-                    std::cerr << "Failed to load music: " << Mix_GetError() << std::endl;
-                    Mix_CloseAudio();
-                    SDL_Quit();
-                    is_play = 0;
-                }
-                if (Mix_PlayMusic(music, -1) == -1)
-                {
-                    std::cerr << "Failed to play music: " << Mix_GetError() << std::endl;
-                    Mix_FreeMusic(music);
-                    Mix_CloseAudio();
-                    SDL_Quit();
-                    is_play = 0;
-                }
+                Mix_FreeMusic(music);
+                music = NULL;
             }
-        }
-        else
-        {
-            if (std::filesystem::exists(list_files[ind]))
+            music = Mix_LoadMUS(const_cast<char *>(playing_list[media_file_index].c_str()));
+            if (!music)
             {
-                is_fst = 1;
-                media_file_index = ind;
-                last = time(NULL);
-                if (music != NULL)
-                {
-                    Mix_FreeMusic(music);
-                    music = NULL;
-                }
-                music = Mix_LoadMUS(const_cast<char *>(list_files[media_file_index].c_str()));
-                if (!music)
-                {
-                    std::cerr << "Failed to load music: " << Mix_GetError() << std::endl;
-                    Mix_CloseAudio();
-                    SDL_Quit();
-                    is_play = 0;
-                }
-                if (Mix_PlayMusic(music, -1) == -1)
-                {
-                    std::cerr << "Failed to play music: " << Mix_GetError() << std::endl;
-                    Mix_FreeMusic(music);
-                    Mix_CloseAudio();
-                    SDL_Quit();
-                    is_play = 0;
-                }
+                std::cerr << "Failed to load music: " << Mix_GetError() << std::endl;
+                Mix_CloseAudio();
+                SDL_Quit();
+                is_play = 0;
+            }
+            if (Mix_PlayMusic(music, -1) == -1)
+            {
+                std::cerr << "Failed to play music: " << Mix_GetError() << std::endl;
+                Mix_FreeMusic(music);
+                Mix_CloseAudio();
+                SDL_Quit();
+                is_play = 0;
             }
         }
     }
@@ -787,7 +770,9 @@ void Application::Screen_play_media_act()
         {
         out1:
             is_fst = 1;
-            media_file_index++;
+            media_file_index++;                     //check
+            // std::cout << "HERE1" << std::endl;
+            // sleep(10);
             if (media_file_index >= size)
             {
                 media_file_index = 0;
@@ -818,47 +803,23 @@ void Application::Screen_play_media_act()
                 err_idx = -2;
             }
             last = time(NULL);
-            if (list_files.empty())
+            if (!pathExists(const_cast<char *>(playing_list[media_file_index].c_str())))
             {
-                if (!pathExists(const_cast<char *>(List_playlist[pli].__list[media_file_index].c_str())))
+                if (!err)
                 {
-                    if (!err)
-                    {
-                        err = 1;
-                        err_idx = media_file_index;
-                    }
-                    err_cnt++;
-                    goto out1;
+                    err = 1;
+                    err_idx = media_file_index;
                 }
+                err_cnt++;
+                goto out1;
             }
-            else
-            {
-                if (!pathExists(const_cast<char *>(list_files[media_file_index].c_str())))
-                {
-                    if (!err)
-                    {
-                        err = 1;
-                        err_idx = media_file_index;
-                    }
-                    err_cnt++;
-                    goto out1;
-                }
-            }
-            //
+            pre_media_file_index = media_file_index;
             if (music != NULL)
             {
                 Mix_FreeMusic(music);
                 music = NULL;
             }
-            if (list_files.empty())
-            {
-
-                music = Mix_LoadMUS(const_cast<char *>(List_playlist[pli].__list[media_file_index].c_str()));
-            }
-            else
-            {
-                music = Mix_LoadMUS(const_cast<char *>(list_files[media_file_index].c_str()));
-            }
+            music = Mix_LoadMUS(const_cast<char *>(playing_list[media_file_index].c_str()));
             if (!music)
             {
                 std::cerr << "Failed to load music: " << Mix_GetError() << std::endl;
@@ -912,46 +873,23 @@ void Application::Screen_play_media_act()
                 err_idx = -2;
             }
             last = time(NULL);
-            if (list_files.empty())
+            if (!pathExists(const_cast<char *>(playing_list[media_file_index].c_str())))
             {
-                if (!pathExists(const_cast<char *>(List_playlist[pli].__list[media_file_index].c_str())))
+                if (!err)
                 {
-                    if (!err)
-                    {
-                        err = 1;
-                        err_idx = media_file_index;
-                    }
-                    err_cnt++;
-                    goto out2;
+                    err = 1;
+                    err_idx = media_file_index;
                 }
+                err_cnt++;
+                goto out2;
             }
-            else
-            {
-                if (!pathExists(const_cast<char *>(list_files[media_file_index].c_str())))
-                {
-                    if (!err)
-                    {
-                        err = 1;
-                        err_idx = media_file_index;
-                    }
-                    err_cnt++;
-                    goto out2;
-                }
-            }
+            pre_media_file_index = media_file_index;
             if (music != NULL)
             {
                 Mix_FreeMusic(music);
                 music = NULL;
             }
-            if (list_files.empty())
-            {
-
-                music = Mix_LoadMUS(const_cast<char *>(List_playlist[pli].__list[media_file_index].c_str()));
-            }
-            else
-            {
-                music = Mix_LoadMUS(const_cast<char *>(list_files[media_file_index].c_str()));
-            }
+            music = Mix_LoadMUS(const_cast<char *>(playing_list[media_file_index].c_str()));
             if (!music)
             {
                 std::cerr << "Failed to load music: " << Mix_GetError() << std::endl;
@@ -1190,11 +1128,13 @@ void Application::thread_play_media()
             Screen_stack.top()->printMedia(page, total_page);
             Screen_stack.top()->print_orther();
         }
-        if ((int)difftime(current, last) >= Screen_stack.top()->media[media_file_index].duration && !is_replay)
+        if (difftime(current, last) >= GetDuration(playing_list[media_file_index]) && !is_replay)
         {
         out:
-            media_file_index++;
-            if (media_file_index >= size)
+            media_file_index++;                                                         //check
+            // std::cout << "HERE2 " << current << "  " << last << " " << Screen_stack.top()->media[media_file_index].duration << std::endl;
+            // sleep(10);
+            if (media_file_index >= (int)playing_list.size())
             {
                 media_file_index = 0;
             }
@@ -1207,55 +1147,31 @@ void Application::thread_play_media()
                 err_idx = -2;
                 goto exitl;
             }
-            else if (err_idx == media_file_index && err && err_cnt != size)
+            else if (err_idx == media_file_index && err && err_cnt != size)                     
             {
                 err = 0;
                 err_cnt = 0;
                 err_idx = -2;
             }
-            if (list_files.empty())
+            if (!pathExists(const_cast<char *>(playing_list[media_file_index].c_str())))
             {
-                if (!pathExists(const_cast<char *>(List_playlist[pli].__list[media_file_index].c_str())))
+                if (!err)
                 {
-                    if (!err)
-                    {
-                        err = 1;
-                        err_idx = media_file_index;
-                    }
-                    err_cnt++;
-                    goto out;
+                    err = 1;
+                    err_idx = media_file_index;
                 }
-            }
-            else
-            {
-                if (!pathExists(const_cast<char *>(list_files[media_file_index].c_str())))
-                {
-                    if (!err)
-                    {
-                        err = 1;
-                        err_idx = media_file_index;
-                    }
-                    err_cnt++;
-                    goto out;
-                    goto out;
-                }
+                err_cnt++;
+                goto out;
             }
             //
+            pre_media_file_index = media_file_index;
             last = time(NULL);
             if (music != NULL)
             {
                 Mix_FreeMusic(music);
                 music = NULL;
             }
-            if (list_files.empty())
-            {
-
-                music = Mix_LoadMUS(const_cast<char *>(List_playlist[pli].__list[media_file_index].c_str()));
-            }
-            else
-            {
-                music = Mix_LoadMUS(const_cast<char *>(list_files[media_file_index].c_str()));
-            }
+            music = Mix_LoadMUS(const_cast<char *>(playing_list[media_file_index].c_str()));
             if (!music)
             {
                 std::cerr << "Failed to load music: " << Mix_GetError() << std::endl;
@@ -1272,7 +1188,7 @@ void Application::thread_play_media()
                 is_play = 0;
             }
         }
-        else if ((int)difftime(current, last) >= Screen_stack.top()->media[media_file_index].duration && is_replay)
+        else if (difftime(current, last) >= GetDuration(playing_list[media_file_index]) && is_replay)
         {
             last = time(NULL);
         }
