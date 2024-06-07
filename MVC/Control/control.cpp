@@ -168,7 +168,7 @@ void Application::Screen_start_act()
         {
         case 0:
             Screen_stack.top()->media.clear();
-            Screen_stack.top()->setMedia(list_files);
+            Screen_stack.top()->setMedia(playing_list);
             list_files.assign(playing_list.begin(), playing_list.end());
             Screen_stack.push(new Screen_find());
             Screen_stack.push(new Screen_find_result());
@@ -178,7 +178,7 @@ void Application::Screen_start_act()
         case 1:
             pli = pre_pli;
             Screen_stack.top()->media.clear();
-            Screen_stack.top()->setMedia(List_playlist[pli].__list);
+            Screen_stack.top()->setMedia(playing_list);
             Screen_stack.push(new Screen_playlist());
             Screen_stack.push(new Screen_playlist_element());
             Screen_stack.push(new Screen_media_detail());
@@ -186,7 +186,7 @@ void Application::Screen_start_act()
             break;
         case 2:
             Screen_stack.top()->media.clear();
-            Screen_stack.top()->setMedia(list_files);
+            Screen_stack.top()->setMedia(playing_list);
             list_files.assign(playing_list.begin(), playing_list.end());
             Screen_stack.push(new Screen_find());
             Screen_stack.push(new Screen_usb());
