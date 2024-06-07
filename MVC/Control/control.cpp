@@ -127,7 +127,8 @@ void Application::run_app()
 
 void Application::Screen_start_act()
 {
-    Screen_stack.top()->display();
+    Screen_stack.top()->display(is_play);
+    
     opt = Screen_stack.top()->getChoice();
     if (opt == "1")
     {
@@ -151,6 +152,38 @@ void Application::Screen_start_act()
     {
         delete Screen_stack.top();
         Screen_stack.pop();
+    }
+    else if (opt == "`" || opt == "~") 
+    {
+        is_back = 0;    
+        list_files.clear();
+        media_file_index = pre_media_file_index;        
+        switch (pre_menu)
+        {
+        case 0:
+            list_files.assign(playing_list.begin(), playing_list.end());
+            Screen_stack.push(new Screen_find());
+            Screen_stack.push(new Screen_find_result());
+            Screen_stack.push(new Screen_media_detail());
+            Screen_stack.push(new Screen_play_media());
+            break;
+        case 1:
+            pre_pli = pli;
+            Screen_stack.push(new Screen_playlist());
+            Screen_stack.push(new Screen_playlist_element());
+            Screen_stack.push(new Screen_media_detail());
+            Screen_stack.push(new Screen_play_media());
+            break;
+        case 2:
+            list_files.assign(playing_list.begin(), playing_list.end());
+            Screen_stack.push(new Screen_find());
+            Screen_stack.push(new Screen_usb());
+            Screen_stack.push(new Screen_media_detail());
+            Screen_stack.push(new Screen_play_media());
+            break;
+        default:
+            break;
+        }
     }
     try {
         menu = std::stoi(opt) - 1;
@@ -341,10 +374,10 @@ void Application::Screen_playlist_element_act()
     size = List_playlist[pli].__list.size();
     total_page = (size % FILES_PER_PAGE == 0) ? (size / FILES_PER_PAGE) : (size / FILES_PER_PAGE) + 1;
     Screen_stack.top()->printMedia(page, total_page); 
-    if (!playing_list.empty())
-    {
-        std::cout << media_file_index << ":" << file_index << ": " << playing_list[0] << std::endl;
-    }
+    // if (!playing_list.empty())
+    // {
+    //     std::cout << media_file_index << ":" << file_index << ": " << playing_list[0] << std::endl;
+    // }
     opt = Screen_stack.top()->getChoice();
     try
     {
@@ -585,6 +618,8 @@ void Application::Screen_media_detail_act()
             if (list_files.empty())
             {
                 // find_files(const_cast<char *>(opt.c_str()), list_files, cnt);
+                // std::cout << "HERE1" << std::endl;
+                // sleep(4);
                 playing_list.clear();
                 playing_list.assign(List_playlist[pli].__list.begin(), List_playlist[pli].__list.end());
                 // music = Mix_LoadMUS(const_cast<char *>(List_playlist[pli].__list[media_file_index].c_str()));

@@ -91,6 +91,12 @@ void Screen_start::display(int input, int input1)
     printf("-------------PLAY MEDIA FILE-------------\n"); // terminal
     printf("===================================================================================================================\n");
     printf("\nWELCOME\n");
+
+    if (input)
+    {
+        std::cout << std::endl;
+        std::cout << "Press [`] to back play screen\n";
+    }
     printf("\n");
     printf("1. Find media files.\n");
     printf("2. Playlist.\n");
