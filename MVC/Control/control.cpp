@@ -18,6 +18,7 @@ int cnt = 0;
 int page = 0;
 int pli = 0;
 int total_page = 0;
+int pre_total_page = 0;
 
 int media_file_index = 0; // for choose media file when play media file
 int file_index = 0;       // for choose media file when not play media file
@@ -159,10 +160,13 @@ void Application::Screen_start_act()
     {
         is_back = 0;    
         list_files.clear();
-        media_file_index = pre_media_file_index;        
+        media_file_index = pre_media_file_index;
+        total_page = pre_total_page;
         switch (pre_menu)
         {
         case 0:
+            Screen_stack.top()->media.clear();
+            Screen_stack.top()->setMedia(list_files);
             list_files.assign(playing_list.begin(), playing_list.end());
             Screen_stack.push(new Screen_find());
             Screen_stack.push(new Screen_find_result());
@@ -170,13 +174,17 @@ void Application::Screen_start_act()
             Screen_stack.push(new Screen_play_media());
             break;
         case 1:
-            pre_pli = pli;
+            pli = pre_pli;
+            Screen_stack.top()->media.clear();
+            Screen_stack.top()->setMedia(List_playlist[pli].__list);
             Screen_stack.push(new Screen_playlist());
             Screen_stack.push(new Screen_playlist_element());
             Screen_stack.push(new Screen_media_detail());
             Screen_stack.push(new Screen_play_media());
             break;
         case 2:
+            Screen_stack.top()->media.clear();
+            Screen_stack.top()->setMedia(list_files);
             list_files.assign(playing_list.begin(), playing_list.end());
             Screen_stack.push(new Screen_find());
             Screen_stack.push(new Screen_usb());
@@ -602,6 +610,7 @@ void Application::Screen_media_detail_act()
         //multithread
         is_back = 0;
         media_file_index = file_index;
+        pre_total_page = total_page;
         if (!is_play) {
             pre_menu = menu;
             pre_pli = pli;
@@ -807,6 +816,7 @@ void Application::Screen_play_media_act()
         {
         out1:
             is_fst = 1;
+            is_pause = 0;
             media_file_index++;                     //check
             // std::cout << "HERE1" << std::endl;
             // sleep(10);
@@ -879,6 +889,7 @@ void Application::Screen_play_media_act()
         {
         out2:
             is_fst = 1;
+            is_pause = 0;
             media_file_index--;
             if (media_file_index < 0)
             {

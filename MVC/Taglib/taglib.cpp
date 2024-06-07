@@ -14,6 +14,7 @@ Media GetMedia(const std::string &path)
         media.album = tag->album().to8Bit(true);
         media.year = tag->year();
         media.duration = (long)properties->length();
+        media.extension = getFileExtension(path);
     }
     return media;
 }
@@ -106,4 +107,14 @@ bool Edit_Year(const std::string &path, int new_year)
     {
         return false;
     }
+}
+
+std::string getFileExtension(const std::string &filename)
+{
+    size_t pos = filename.find_last_of('.');
+    if (pos != std::string::npos)
+    {
+        return filename.substr(pos + 1);
+    }
+    return ""; // Empty string if no extension found
 }

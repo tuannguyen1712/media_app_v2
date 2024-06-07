@@ -7,6 +7,7 @@ Media::Media(const Media &input)
     album = input.album;
     year = input.year;
     duration = input.duration;
+    extension = input.extension;
 }
 
 Playlist::Playlist(const std::string &name)

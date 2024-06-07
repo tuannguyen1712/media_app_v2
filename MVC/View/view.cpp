@@ -34,7 +34,7 @@ void Screen::setMedia(std::vector<std::string> &input)
         }
         else
         {
-            media.push_back(Media("File not exist", "N/A", "N/A", 0, 0));
+            media.push_back(Media("File not exist", "N/A", "N/A", 0, 0, "N/A"));
         }
     }
 }
@@ -45,19 +45,21 @@ void Screen::printMedia(const int &page, const int &total_page)
               << std::setw(4) << std::left << "Num" << "| " << std::setw(TITLE_WIDTH) << std::left << "Name"
               << "| " << std::setw(ARTIRST_WIDTH) << std::left << "Artist"
               << "| " << std::setw(ALBUM_WIDTH) << std::left << "Album"
-              << "| " << std::setw(YEAR_WIDTH) << std::left << "Year";
+              << "| " << std::setw(YEAR_WIDTH) << std::left << "Year"
+              << "| " << std::setw(EXTENSION_WIDTH) << std::left << "Extension";
     std::cout << "| Duration" << std::endl;
-    std::cout << "------------------------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "-------------------------------------------------------------------------------------------------------------------------" << std::endl;
     for (int i = page * FILES_PER_PAGE + 1; i <= (page + 1) * FILES_PER_PAGE && i <= (int)media.size(); i++)
     {
         std::cout << std::setw(4) << std::left << i;
         std::cout << "| " << std::setw(TITLE_WIDTH) << std::left << media[i - 1].name
                   << "| " << std::setw(ARTIRST_WIDTH) << std::left << media[i - 1].artist
                   << "| " << std::setw(ALBUM_WIDTH) << std::left << media[i - 1].album
-                  << "| " << std::setw(YEAR_WIDTH) << std::left << media[i - 1].year;
+                  << "| " << std::setw(YEAR_WIDTH) << std::left << media[i - 1].year
+                  << "| " << std::setw(EXTENSION_WIDTH) << std::left << media[i - 1].extension;
         printf("| %02d:%02d\n", media[i - 1].duration / 60, media[i - 1].duration % 60);
     }
-    std::cout << "------------------------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "-------------------------------------------------------------------------------------------------------------------------" << std::endl;
     std::cout << "Page" << page + 1 << "/" << total_page << std::endl
               << std::endl;
 }
@@ -76,7 +78,7 @@ void Screen::print_orther()
     std::cout << "\n\t\t[<]Previous\t\t[>]Next\t\t[;]Replay\n";
     std::cout << "----------------------------------------------------------------------------------------------------";
     std::cout << "\n<[B]ack\t\t|<|[R]eturn\t\t[P]lay/[P]ause\t\t|>|[S]kip\t\t[-]Volume[+]" << std::endl;
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     std::cout << "Enter your choice: \n";
 }
 
@@ -89,7 +91,7 @@ void Screen_start::display(int input, int input1)
 {
     clear_terminal();
     printf("-------------PLAY MEDIA FILE-------------\n"); // terminal
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     printf("\nWELCOME\n");
 
     if (input)
@@ -107,7 +109,7 @@ void Screen_start::display(int input, int input1)
 std::string Screen_start::getChoice()
 {
     std::string opt;
-    printf("\n===================================================================================================================\n");
+    printf("\n=========================================================================================================================\n");
     std::cout << "Enter your choice: ";
     std::getline(std::cin, opt);
     // clean_stdin\(\);
@@ -123,7 +125,7 @@ void Screen_find::display(int input, int input1)
 {
     clear_terminal();
     printf("-------------PLAY MEDIA FILE-------------\n"); // terminal1.1
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     printf("\n1. Find media files.\n");
     printf("\n");
     printf("Enter directoty path: ");
@@ -133,7 +135,7 @@ void Screen_find::display(int input, int input1)
 std::string Screen_find::getChoice()
 {
     std::string opt;
-    printf("\n===================================================================================================================\n");
+    printf("\n=========================================================================================================================\n");
     std::cout << "Enter your choice: ";
     std::getline(std::cin, opt);
     // clean_stdin\(\);
@@ -149,7 +151,7 @@ void Screen_find_result::display(int input, int input1)
 {
     clear_terminal();
     printf("-------------PLAY MEDIA FILE-------------\n");
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     printf("\n1. Find media files.\n");
     printf("Result\n");
 }
@@ -158,7 +160,7 @@ std::string Screen_find_result::getChoice()
 {
     std::string opt;
     std::cout << "<[B]ack\t\t[<]Previous\t\t[>]Next" << std::endl;
-    printf("\n===================================================================================================================\n");
+    printf("\n=========================================================================================================================\n");
     std::cout << "Enter your choice: ";
     std::getline(std::cin, opt);
     // clean_stdin\(\);
@@ -174,7 +176,7 @@ void Screen_playlist::display(int input, int input1)
 {
     clear_terminal();
     printf("-------------PLAY MEDIA FILE-------------\n");
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     printf("\n2. Playlist.\n\n");
 }
 
@@ -182,7 +184,7 @@ std::string Screen_playlist::getChoice()
 {
     std::string opt;
     std::cout << "<[B]ack\t\t[A]dd\t\t[D]elete" << std::endl;
-    printf("\n===================================================================================================================\n");
+    printf("\n=========================================================================================================================\n");
     std::cout << "\nEnter your choice: ";
     std::getline(std::cin, opt);
     // clean_stdin\(\);
@@ -198,7 +200,7 @@ void Screen_playlist_element::display(int input, int input1)
 {
     clear_terminal();
     printf("-------------PLAY MEDIA FILE-------------\n");
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     printf("\n2. Playlist.\n\n");
 }
 
@@ -206,7 +208,7 @@ std::string Screen_playlist_element::getChoice()
 {
     std::string opt;
     std::cout << "<[B]ack\t\t[A]dd\t\t[D]elete\t\t[R]ename\t\t[<]Previous\t\t[>]Next" << std::endl;
-    printf("\n===================================================================================================================\n");
+    printf("\n=========================================================================================================================\n");
     std::cout << "\nEnter your choice: ";
     std::getline(std::cin, opt);
     // clean_stdin\(\);
@@ -222,7 +224,7 @@ void Screen_playlist_element_add::display(int input, int input1)
 {
     clear_terminal();
     printf("-------------PLAY MEDIA FILE-------------\n");
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     printf("\n2. Playlist.\n\n");
 }
 
@@ -231,7 +233,7 @@ std::string Screen_playlist_element_add::getChoice()
     std::string opt;
     std::cout << "Enter soucre folder: " << std::endl;
     std::cout << "<[B]ack" << std::endl;
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     std::cout << "\nEnter your choice: ";
     std::getline(std::cin, opt);
     // clean_stdin\(\);
@@ -247,7 +249,7 @@ void Screen_playlist_element_add_list::display(int input, int input1)
 {
     clear_terminal();
     printf("-------------PLAY MEDIA FILE-------------\n");
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     printf("\n2. Playlist.\n\n");
 }
 
@@ -256,7 +258,7 @@ std::string Screen_playlist_element_add_list::getChoice()
     std::string opt;
     std::cout << "Enter file number you want to add: " << std::endl;
     std::cout << "<[B]ack\t\t[<]Previous\t\t[>]Next\t\t[D]one" << std::endl;
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     std::cout << "\nEnter your choice: ";
     std::getline(std::cin, opt);
     // clean_stdin\(\);
@@ -272,7 +274,7 @@ void Screen_playlist_add::display(int input, int input1)
 {
     clear_terminal();
     printf("-------------PLAY MEDIA FILE-------------\n");
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     printf("\n2. Playlist.\nAdd new playlist\n");
 }
 
@@ -281,7 +283,7 @@ std::string Screen_playlist_add::getChoice()
     std::string opt;
     std::cout << "Enter playlist name: " << std::endl;
     std::cout << "<[B]ack" << std::endl;
-    printf("\n===================================================================================================================\n");
+    printf("\n=========================================================================================================================\n");
     std::cout << "\nEnter your choice: ";
     std::getline(std::cin, opt);
     // clean_stdin\(\);
@@ -297,7 +299,7 @@ void Screen_playlist_delete::display(int input, int input1)
 {
     clear_terminal();
     printf("-------------PLAY MEDIA FILE-------------\n");
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     printf("\n2. Playlist.\nDelete playlist\n");
 }
 
@@ -306,7 +308,7 @@ std::string Screen_playlist_delete::getChoice()
     std::string opt;
     std::cout << "Enter index of playlist: " << std::endl;
     std::cout << "<[B]ack" << std::endl;
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     std::cout << "\nEnter your choice: ";
     std::getline(std::cin, opt);
     // clean_stdin\(\);
@@ -322,7 +324,7 @@ void Screen_playlist_element_delete::display(int input, int input1)
 {
     clear_terminal();
     printf("-------------PLAY MEDIA FILE-------------\n");
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     printf("\n2. Playlist.\nDelete element in playlist\n");
 }
 
@@ -331,7 +333,7 @@ std::string Screen_playlist_element_delete::getChoice()
     std::string opt;
     std::cout << "Enter index of element: " << std::endl;
     std::cout << "<[B]ack\t\t[<]Previous\t\t[>]Next" << std::endl;
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     std::cout << "\nEnter your choice: ";
     std::getline(std::cin, opt);
     // clean_stdin\(\);
@@ -347,7 +349,7 @@ void Screen_playlist_rename::display(int input, int input1)
 {
     clear_terminal();
     printf("-------------PLAY MEDIA FILE-------------\n");
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     printf("\n2. Playlist.\n");
 }
 
@@ -356,7 +358,7 @@ std::string Screen_playlist_rename::getChoice()
     std::string opt;
     std::cout << "\nRename playlist\nEnter new name: " << std::endl;
     std::cout << "<[B]ack" << std::endl;
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     std::cout << "Enter your choice: ";
     std::getline(std::cin, opt);
     // clean_stdin\(\);
@@ -372,7 +374,7 @@ void Screen_media_detail::display(int input, int input1)
 {
     clear_terminal();
     printf("-------------PLAY MEDIA FILE-------------\n");
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     printf("\nCurrent file: ");
     std::cout << "[" << input + 1 << "]. " << media[input].name << std::endl;
 }
@@ -381,7 +383,7 @@ std::string Screen_media_detail::getChoice()
 {
     std::string opt;
     std::cout << "<[B]ack\t\t|>[P]lay\t\t[R]ename" << std::endl;
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     std::cout << "\nEnter your choice: ";
     std::getline(std::cin, opt);
     // clean_stdin\(\);
@@ -397,7 +399,7 @@ void Screen_media_rename::display(int input, int input1)
 {
     clear_terminal();
     printf("-------------PLAY MEDIA FILE-------------\n");
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     printf("\nCurrent file: ");
     // std::cout << name << std::endl;
     std::cout << "[" << input + 1 << "]. " << media[input].name << std::endl;
@@ -408,7 +410,7 @@ std::string Screen_media_rename::getChoice()
     std::string opt;
     std::cout << "Enter new name: \n";
     std::cout << "<[B]ack\t\t" << std::endl;
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     std::cout << "\nEnter your choice: ";
     std::getline(std::cin, opt);
     // clean_stdin\(\);
@@ -424,7 +426,7 @@ void Screen_play_media::display(int input, int input1)
 {
     clear_terminal();
     printf("-------------PLAY MEDIA FILE-------------\n");
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     printf("\nCurrent file: ");
     // std::cout << name << std::endl;
     std::cout << "[" << input1 + 1 << "]. " << media[input1].name << std::endl;
@@ -491,7 +493,7 @@ void Screen_usb::display(int input, int input1)
 {
     clear_terminal();
     printf("-------------PLAY MEDIA FILE-------------\n"); // terminal1.1
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     printf("\n3. Find from USB.\n");
     printf("\n");
     std::cout << "Current path: \n";
@@ -507,7 +509,7 @@ void Screen_usb::display(int input, int input1)
 std::string Screen_usb::getChoice()
 {
     std::string opt;
-    printf("===================================================================================================================\n");
+    printf("=========================================================================================================================\n");
     std::cout << "\nEnter your choice: ";
     std::getline(std::cin, opt);
     // clean_stdin\(\);

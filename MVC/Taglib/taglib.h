@@ -23,3 +23,4 @@ bool Edit_Title(const std::string &path, std::string new_title);
 bool Edit_Artist(const std::string &path, std::string new_artist);
 bool Edit_Album(const std::string &path, std::string new_album);
 bool Edit_Year(const std::string &path, int new_year);
+std::string getFileExtension(const std::string &path);

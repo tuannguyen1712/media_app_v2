@@ -10,6 +10,7 @@
 #define ARTIRST_WIDTH 25
 #define ALBUM_WIDTH 20
 #define YEAR_WIDTH 10
+#define EXTENSION_WIDTH 10
 
 #define FILES_PER_PAGE 10
 

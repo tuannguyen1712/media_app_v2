@@ -16,9 +16,10 @@ public:
     std::string album;
     unsigned int year;
     int duration;
+    std::string extension;
     Media() {}
-    Media(const std::string n, const std::string art, const std::string alb, const unsigned int y, const int dur)
-        : name(n), artist(art), album(alb), year(y), duration(dur)
+    Media(const std::string n, const std::string art, const std::string alb, const unsigned int y, const int dur, const std::string ext)
+        : name(n), artist(art), album(alb), year(y), duration(dur), extension(ext)
     {
     }
     Media(const Media &input);
