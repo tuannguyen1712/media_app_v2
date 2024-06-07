@@ -16,14 +16,14 @@ void clear_terminal()
     printf("\033[2J\033[H");
 }
 
-std::vector<Media> Screen::media;
-std::string Screen::playlist;
-std::string Screen::name;
-std::vector<std::string> Screen::usb_path;
-int Screen::volume = 0;
-int Screen::replay = 0;
+std::vector<Media> Screen1::media;
+std::string Screen1::playlist;
+std::string Screen1::name;
+std::vector<std::string> Screen1::usb_path;
+int Screen1::volume = 0;
+int Screen1::replay = 0;
 
-void Screen::setMedia(std::vector<std::string> &input)
+void Screen1::setMedia(std::vector<std::string> &input)
 {
     media.clear();
     for (int i = 0; i < (int)input.size(); i++)
@@ -39,7 +39,7 @@ void Screen::setMedia(std::vector<std::string> &input)
     }
 }
 
-void Screen::printMedia(const int &page, const int &total_page)
+void Screen1::printMedia(const int &page, const int &total_page)
 {
     std::cout << std::endl
               << std::setw(4) << std::left << "Num" << "| " << std::setw(TITLE_WIDTH) << std::left << "Name"
@@ -52,9 +52,14 @@ void Screen::printMedia(const int &page, const int &total_page)
     for (int i = page * FILES_PER_PAGE + 1; i <= (page + 1) * FILES_PER_PAGE && i <= (int)media.size(); i++)
     {
         std::cout << std::setw(4) << std::left << i;
-        std::cout << "| " << std::setw(TITLE_WIDTH) << std::left << media[i - 1].name
-                  << "| " << std::setw(ARTIRST_WIDTH) << std::left << media[i - 1].artist
-                  << "| " << std::setw(ALBUM_WIDTH) << std::left << media[i - 1].album
+        // std::cout << "| " << std::setw(TITLE_WIDTH) << std::left << media[i - 1].name
+        //           << "| " << std::setw(ARTIRST_WIDTH) << std::left << media[i - 1].artist
+        //           << "| " << std::setw(ALBUM_WIDTH) << std::left << media[i - 1].album
+        //           << "| " << std::setw(YEAR_WIDTH) << std::left << media[i - 1].year
+        //           << "| " << std::setw(EXTENSION_WIDTH) << std::left << media[i - 1].extension;
+        std::cout << "| " << std::left << left_align(truncate_utf8(media[i - 1].name, TITLE_WIDTH - 2), TITLE_WIDTH)
+                  << "| " << std::left << left_align(truncate_utf8(media[i - 1].artist, ARTIRST_WIDTH - 2), ARTIRST_WIDTH)
+                  << "| " << std::left << left_align(truncate_utf8(media[i - 1].album, ALBUM_WIDTH - 2), ALBUM_WIDTH)
                   << "| " << std::setw(YEAR_WIDTH) << std::left << media[i - 1].year
                   << "| " << std::setw(EXTENSION_WIDTH) << std::left << media[i - 1].extension;
         printf("| %02d:%02d\n", media[i - 1].duration / 60, media[i - 1].duration % 60);
@@ -64,16 +69,16 @@ void Screen::printMedia(const int &page, const int &total_page)
               << std::endl;
 }
 
-void Screen::set_playlist_name(const std::string &pl_name)
+void Screen1::set_playlist_name(const std::string &pl_name)
 {
     playlist = pl_name;
 }
-void Screen::print_playlist_name(const int &index)
+void Screen1::print_playlist_name(const int &index)
 {
     std::cout << "[" << index + 1 << "]. " << playlist << std::endl;
 }
 
-void Screen::print_orther()
+void Screen1::print_orther()
 {
     std::cout << "\n\t\t[<]Previous\t\t[>]Next\t\t[;]Replay\n";
     std::cout << "----------------------------------------------------------------------------------------------------";
@@ -82,7 +87,7 @@ void Screen::print_orther()
     std::cout << "Enter your choice: \n";
 }
 
-int Screen::getID()
+int Screen1::getID()
 {
     return id;
 }
@@ -519,4 +524,43 @@ std::string Screen_usb::getChoice()
 int Screen_usb::getID()
 {
     return id;
+}
+
+size_t utf8_strlen(const std::string &str)
+{
+    // Chuyển đổi từ UTF-8 sang wstring (UTF-32)
+    std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> converter;
+    std::u32string u32_str = converter.from_bytes(str);
+
+    // Trả về kích thước của chuỗi UTF-32
+    return u32_str.length();
+}
+// Hàm cắt chuỗi UTF-8 nếu dài hơn độ dài tối đa
+std::string truncate_utf8(const std::string &str, size_t max_length)
+{
+    std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> converter;
+    std::u32string u32_str = converter.from_bytes(str);
+
+    if (u32_str.length() > max_length)
+    {
+        u32_str = u32_str.substr(0, max_length);
+    }
+
+    return converter.to_bytes(u32_str);
+}
+// Hàm để căn chỉnh trái một chuỗi UTF-8 với độ rộng cố định
+std::string left_align(const std::string &str, size_t width)
+{
+    std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> converter;
+    std::u32string u32_str = converter.from_bytes(str);
+
+    size_t length = u32_str.length();
+    if (length >= width)
+    {
+        return converter.to_bytes(u32_str.substr(0, width));
+    }
+
+    std::string result = converter.to_bytes(u32_str);
+    result.append(width - length, ' '); // Thêm khoảng trắng cho đủ độ rộng
+    return result;
 }

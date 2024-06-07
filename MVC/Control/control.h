@@ -23,6 +23,7 @@
 #include "model.h"
 #include "taglib.h"
 #include "utility.h"
+#include "PlayMP4.h"
 
 #define FILES_PER_PAGE 10
 #define PLAYLIST_NUM 25
@@ -30,8 +31,9 @@
 class Application
 {
 private:
-    std::stack<Screen *> Screen_stack;
+    std::stack<Screen1 *> Screen_stack;
     std::vector<Playlist> List_playlist;    
+    Player_MP4 player_mp4;
     std::thread thread_play;
     int menu = -1, pre_menu = -1;
     int pre_pli = -1;

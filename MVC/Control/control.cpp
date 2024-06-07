@@ -188,7 +188,6 @@ void Application::Screen_start_act()
             Screen_stack.top()->media.clear();
             Screen_stack.top()->setMedia(playing_list);
             list_files.assign(playing_list.begin(), playing_list.end());
-            Screen_stack.push(new Screen_find());
             Screen_stack.push(new Screen_usb());
             Screen_stack.push(new Screen_media_detail());
             Screen_stack.push(new Screen_play_media());
@@ -292,6 +291,7 @@ void Application::Screen_usb_act()
         {
             delete Screen_stack.top();
             Screen_stack.pop();
+            list_files.clear();
         }
     }
 }
@@ -611,23 +611,16 @@ void Application::Screen_media_detail_act()
     {
         //multithread
         is_back = 0;
+        is_pause = 0;
         media_file_index = file_index;
         pre_total_page = total_page;
         if (!is_play) {
             pre_menu = menu;
             pre_pli = pli;
             pre_media_file_index = media_file_index;
-            if (SDL_Init(SDL_INIT_AUDIO) < 0)
-            {
-                std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
-                is_play = 0;
-            }
-            if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
-            {
-                std::cerr << "Failed to initialize SDL_mixer: " << Mix_GetError() << std::endl;
-                SDL_Quit();
-                is_play = 0;
-            }
+            Screen_stack.top()->volume = volume;
+            is_play = 1;
+            is_fst = 1;
             if (list_files.empty())
             {
                 // find_files(const_cast<char *>(opt.c_str()), list_files, cnt);
@@ -643,26 +636,46 @@ void Application::Screen_media_detail_act()
                 playing_list.assign(list_files.begin(), list_files.end());
                 // music = Mix_LoadMUS(const_cast<char *>(list_files[media_file_index].c_str()));
             }
-            music = Mix_LoadMUS(const_cast<char *>(playing_list[media_file_index].c_str()));
-            if (!music)
-            {
-                std::cerr << "Failed to load music: " << Mix_GetError() << std::endl;
-                Mix_CloseAudio();
-                SDL_Quit();
+            if (getFileExtension(playing_list[media_file_index]) == "mp3") {
+                if (SDL_Init(SDL_INIT_AUDIO) < 0)
+                {
+                std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
                 is_play = 0;
+                }
+                if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
+                {
+                    std::cerr << "Failed to initialize SDL_mixer: " << Mix_GetError() << std::endl;
+                    SDL_Quit();
+                    is_play = 0;
+                }
+                music = Mix_LoadMUS(const_cast<char *>(playing_list[media_file_index].c_str()));
+                if (!music)
+                {
+                    std::cerr << "Failed to load music: " << Mix_GetError() << std::endl;
+                    Mix_CloseAudio();
+                    SDL_Quit();
+                    is_play = 0;
+                }
+                Mix_VolumeMusic(volume);
+                if (Mix_PlayMusic(music, -1) == -1)
+                {
+                    std::cerr << "Failed to play music: " << Mix_GetError() << std::endl;
+                    Mix_FreeMusic(music);
+                    Mix_CloseAudio();
+                    SDL_Quit();
+                    is_play = 0;
+                }
             }
-            Screen_stack.top()->volume = volume;
-            Mix_VolumeMusic(volume);
-            if (Mix_PlayMusic(music, -1) == -1)
-            {
-                std::cerr << "Failed to play music: " << Mix_GetError() << std::endl;
-                Mix_FreeMusic(music);
-                Mix_CloseAudio();
-                SDL_Quit();
-                is_play = 0;
+            else {
+                if (player_mp4.play_status)
+                {
+                    player_mp4.stopMusic();
+                }
+                if (player_mp4.initPlayer(const_cast<char *>(playing_list[media_file_index].c_str())))
+                {
+                    player_mp4.playMusic();
+                }
             }
-            is_play = 1;
-            is_fst = 1;
             last = time(NULL);
             thread_play = std::thread(&Application::thread_play_media, this);
         }
@@ -673,17 +686,9 @@ void Application::Screen_media_detail_act()
             pre_menu = menu;
             pre_pli = pli;
             pre_media_file_index = media_file_index;
-            if (SDL_Init(SDL_INIT_AUDIO) < 0)
-            {
-                std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
-                is_play = 0;
-            }
-            if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
-            {
-                std::cerr << "Failed to initialize SDL_mixer: " << Mix_GetError() << std::endl;
-                SDL_Quit();
-                is_play = 0;
-            }
+            Screen_stack.top()->volume = volume;
+            is_play = 1;
+            is_fst = 1;
             if (list_files.empty())
             {
                 playing_list.clear();
@@ -694,26 +699,48 @@ void Application::Screen_media_detail_act()
                 playing_list.clear();
                 playing_list.assign(list_files.begin(), list_files.end());
             }
-            music = Mix_LoadMUS(const_cast<char *>(playing_list[media_file_index].c_str()));
-            if (!music)
+            if (getFileExtension(playing_list[media_file_index]) == "mp3")
             {
-                std::cerr << "Failed to load music: " << Mix_GetError() << std::endl;
-                Mix_CloseAudio();
-                SDL_Quit();
-                is_play = 0;
+                if (SDL_Init(SDL_INIT_AUDIO) < 0)
+                {
+                    std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
+                    is_play = 0;
+                }
+                if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
+                {
+                    std::cerr << "Failed to initialize SDL_mixer: " << Mix_GetError() << std::endl;
+                    SDL_Quit();
+                    is_play = 0;
+                }
+                music = Mix_LoadMUS(const_cast<char *>(playing_list[media_file_index].c_str()));
+                if (!music)
+                {
+                    std::cerr << "Failed to load music: " << Mix_GetError() << std::endl;
+                    Mix_CloseAudio();
+                    SDL_Quit();
+                    is_play = 0;
+                }
+                Mix_VolumeMusic(volume);
+                if (Mix_PlayMusic(music, -1) == -1)
+                {
+                    std::cerr << "Failed to play music: " << Mix_GetError() << std::endl;
+                    Mix_FreeMusic(music);
+                    Mix_CloseAudio();
+                    SDL_Quit();
+                    is_play = 0;
+                }
             }
-            Screen_stack.top()->volume = volume;
-            Mix_VolumeMusic(volume);
-            if (Mix_PlayMusic(music, -1) == -1)
+            else
             {
-                std::cerr << "Failed to play music: " << Mix_GetError() << std::endl;
-                Mix_FreeMusic(music);
-                Mix_CloseAudio();
-                SDL_Quit();
-                is_play = 0;
+                if (player_mp4.play_status)
+                {
+                    player_mp4.stopMusic();
+                }
+                if (player_mp4.initPlayer(const_cast<char *>(playing_list[media_file_index].c_str())))
+                {
+                    player_mp4.playMusic();
+                }
             }
-            is_play = 1;
-            is_fst = 1;
             last = time(NULL);
             thread_play = std::thread(&Application::thread_play_media, this);
         }
@@ -761,28 +788,68 @@ void Application::Screen_play_media_act()
         if (std::filesystem::exists(playing_list[ind]))
         {
             is_fst = 1;
-            media_file_index = ind;
-            last = time(NULL);
-            if (music != NULL)
+            if (getFileExtension(playing_list[media_file_index]) == "mp3")
             {
                 Mix_FreeMusic(music);
+                Mix_CloseAudio();
+                SDL_Quit();
                 music = NULL;
             }
-            music = Mix_LoadMUS(const_cast<char *>(playing_list[media_file_index].c_str()));
-            if (!music)
+            else
             {
-                std::cerr << "Failed to load music: " << Mix_GetError() << std::endl;
-                Mix_CloseAudio();
-                SDL_Quit();
-                is_play = 0;
+                player_mp4.stopMusic();
             }
-            if (Mix_PlayMusic(music, -1) == -1)
+            media_file_index = ind;
+            is_pause = 0;
+            pre_media_file_index = ind;
+            last = time(NULL);
+            if (getFileExtension(playing_list[media_file_index]) == "mp3")
             {
-                std::cerr << "Failed to play music: " << Mix_GetError() << std::endl;
-                Mix_FreeMusic(music);
-                Mix_CloseAudio();
-                SDL_Quit();
-                is_play = 0;
+                if (SDL_Init(SDL_INIT_AUDIO) < 0)
+                {
+                    std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
+                    is_play = 0;
+                }
+                if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
+                {
+                    std::cerr << "Failed to initialize SDL_mixer: " << Mix_GetError() << std::endl;
+                    SDL_Quit();
+                    is_play = 0;
+                }
+                if (music != NULL)
+                {
+                    Mix_FreeMusic(music);
+                    Mix_CloseAudio();
+                    SDL_Quit();
+                    music = NULL;
+                }
+                music = Mix_LoadMUS(const_cast<char *>(playing_list[media_file_index].c_str()));
+                if (!music)
+                {
+                    std::cerr << "Failed to load music: " << Mix_GetError() << std::endl;
+                    Mix_CloseAudio();
+                    SDL_Quit();
+                    is_play = 0;
+                }
+                if (Mix_PlayMusic(music, -1) == -1)
+                {
+                    std::cerr << "Failed to play music: " << Mix_GetError() << std::endl;
+                    Mix_FreeMusic(music);
+                    Mix_CloseAudio();
+                    SDL_Quit();
+                    is_play = 0;
+                }
+            }
+            else
+            {
+                if (player_mp4.play_status)
+                {
+                    player_mp4.stopMusic();
+                }
+                if (player_mp4.initPlayer(const_cast<char *>(playing_list[media_file_index].c_str())))
+                {
+                    player_mp4.playMusic();
+                }
             }
         }
     }
@@ -791,31 +858,67 @@ void Application::Screen_play_media_act()
         if (opt == "+")
         {
             volume = std::min(volume.load() + 16, MIX_MAX_VOLUME);
-            Mix_VolumeMusic(volume);
+            if (getFileExtension(playing_list[media_file_index]) == "mp3") 
+            {
+                Mix_VolumeMusic(volume);
+            }
+            else 
+            {
+                player_mp4.volume = volume;
+            }
             Screen_stack.top()->volume = volume;
         }
         else if (opt == "-")
         {
             volume = std::max(volume.load() - 16, 0);
-            Mix_VolumeMusic(volume);
+            if (getFileExtension(playing_list[media_file_index]) == "mp3")
+            {
+                Mix_VolumeMusic(volume);
+            }
+            else
+            {
+                player_mp4.volume = volume;
+            }
             Screen_stack.top()->volume = volume;
         }
         else if (opt == "P" || opt == "p")
         {
             if (is_pause)
             {
-                Mix_ResumeMusic();
                 is_pause = false;
+                if (getFileExtension(playing_list[media_file_index]) == "mp3") {
+                    Mix_ResumeMusic();
+                }
+                else {
+                    SDL_PauseAudio(is_pause);
+                }
             }
             else
             {
-                Mix_PauseMusic();
                 is_pause = true;
+                if (getFileExtension(playing_list[media_file_index]) == "mp3") {
+                    Mix_PauseMusic();
+                }
+                else
+                {
+                    SDL_PauseAudio(is_pause);
+                }
                 is_fst = 0;
             }
         }
         else if (opt == "S" || opt == "s")
         {
+            if (getFileExtension(playing_list[media_file_index]) == "mp3")
+            {
+                Mix_FreeMusic(music);
+                Mix_CloseAudio();
+                SDL_Quit();
+                music = NULL;
+            }
+            else
+            {
+                player_mp4.stopMusic();
+            }
         out1:
             is_fst = 1;
             is_pause = 0;
@@ -863,32 +966,69 @@ void Application::Screen_play_media_act()
                 goto out1;
             }
             pre_media_file_index = media_file_index;
-            if (music != NULL)
-            {
-                Mix_FreeMusic(music);
-                music = NULL;
+            if (getFileExtension(playing_list[media_file_index]) == "mp3") {
+                // if (music != NULL)
+                // {
+                //     Mix_FreeMusic(music);
+                //     music = NULL;
+                // }
+                if (SDL_Init(SDL_INIT_AUDIO) < 0)
+                {
+                    std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
+                    is_play = 0;
+                }
+                if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
+                {
+                    std::cerr << "Failed to initialize SDL_mixer: " << Mix_GetError() << std::endl;
+                    SDL_Quit();
+                    is_play = 0;
+                }
+                music = Mix_LoadMUS(const_cast<char *>(playing_list[media_file_index].c_str()));
+                // std::cout << "HERE\n";
+                // std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                if (!music)
+                {
+                    std::cerr << "Failed to load music: " << Mix_GetError() << std::endl;
+                    Mix_CloseAudio();
+                    SDL_Quit();
+                    is_play = 0;
+                }
+                if (Mix_PlayMusic(music, -1) == -1)
+                {
+                    std::cerr << "Failed to play music: " << Mix_GetError() << std::endl;
+                    Mix_FreeMusic(music);
+                    Mix_CloseAudio();
+                    SDL_Quit();
+                    is_play = 0;
+                }
             }
-            music = Mix_LoadMUS(const_cast<char *>(playing_list[media_file_index].c_str()));
-            if (!music)
+            else
             {
-                std::cerr << "Failed to load music: " << Mix_GetError() << std::endl;
-                Mix_CloseAudio();
-                SDL_Quit();
-                is_play = 0;
-            }
-            if (Mix_PlayMusic(music, -1) == -1)
-            {
-                std::cerr << "Failed to play music: " << Mix_GetError() << std::endl;
-                Mix_FreeMusic(music);
-                Mix_CloseAudio();
-                SDL_Quit();
-                is_play = 0;
+                if (player_mp4.play_status)
+                {
+                    player_mp4.stopMusic();
+                }
+                if (player_mp4.initPlayer(const_cast<char *>(playing_list[media_file_index].c_str())))
+                {
+                    player_mp4.playMusic();
+                }
             }
         exit_s:
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         else if (opt == "R" || opt == "r")
         {
+            if (getFileExtension(playing_list[media_file_index]) == "mp3")
+            {
+                Mix_FreeMusic(music);
+                Mix_CloseAudio();
+                SDL_Quit();
+                music = NULL;
+            }
+            else
+            {
+                player_mp4.stopMusic();
+            }
         out2:
             is_fst = 1;
             is_pause = 0;
@@ -934,26 +1074,44 @@ void Application::Screen_play_media_act()
                 goto out2;
             }
             pre_media_file_index = media_file_index;
-            if (music != NULL)
-            {
-                Mix_FreeMusic(music);
-                music = NULL;
+            if (getFileExtension(playing_list[media_file_index]) == "mp3") {
+                if (SDL_Init(SDL_INIT_AUDIO) < 0)
+                {
+                    std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
+                    is_play = 0;
+                }
+                if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
+                {
+                    std::cerr << "Failed to initialize SDL_mixer: " << Mix_GetError() << std::endl;
+                    SDL_Quit();
+                    is_play = 0;
+                }
+                music = Mix_LoadMUS(const_cast<char *>(playing_list[media_file_index].c_str()));
+                if (!music)
+                {
+                    std::cerr << "Failed to load music: " << Mix_GetError() << std::endl;
+                    Mix_CloseAudio();
+                    SDL_Quit();
+                    is_play = 0;
+                }
+                if (Mix_PlayMusic(music, -1) == -1)
+                {
+                    std::cerr << "Failed to play music: " << Mix_GetError() << std::endl;
+                    Mix_FreeMusic(music);
+                    Mix_CloseAudio();
+                    SDL_Quit();
+                    is_play = 0;
+                }
             }
-            music = Mix_LoadMUS(const_cast<char *>(playing_list[media_file_index].c_str()));
-            if (!music)
+            else
             {
-                std::cerr << "Failed to load music: " << Mix_GetError() << std::endl;
-                Mix_CloseAudio();
-                SDL_Quit();
-                is_play = 0;
-            }
-            if (Mix_PlayMusic(music, -1) == -1)
-            {
-                std::cerr << "Failed to play music: " << Mix_GetError() << std::endl;
-                Mix_FreeMusic(music);
-                Mix_CloseAudio();
-                SDL_Quit();
-                is_play = 0;
+                if (player_mp4.play_status) {
+                    player_mp4.stopMusic();
+                }
+                if (player_mp4.initPlayer(const_cast<char *>(playing_list[media_file_index].c_str())))
+                {
+                    player_mp4.playMusic();
+                }
             }
         exit_r:
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -1180,6 +1338,17 @@ void Application::thread_play_media()
         }
         if (difftime(current, last) >= GetDuration(playing_list[media_file_index]) && !is_replay)
         {
+            if (getFileExtension(playing_list[media_file_index]) == "mp3")
+            {
+                Mix_FreeMusic(music);
+                Mix_CloseAudio();
+                SDL_Quit();
+                music = NULL;
+            }
+            else
+            {
+                player_mp4.stopMusic();
+            }
         out:
             media_file_index++;                                                         //check
             // std::cout << "HERE2 " << current << "  " << last << " " << Screen_stack.top()->media[media_file_index].duration << std::endl;
@@ -1216,26 +1385,46 @@ void Application::thread_play_media()
             //
             pre_media_file_index = media_file_index;
             last = time(NULL);
-            if (music != NULL)
+            if (getFileExtension(playing_list[media_file_index]) == "mp3")
             {
-                Mix_FreeMusic(music);
-                music = NULL;
+                if (SDL_Init(SDL_INIT_AUDIO) < 0)
+                {
+                    std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
+                    is_play = 0;
+                }
+                if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
+                {
+                    std::cerr << "Failed to initialize SDL_mixer: " << Mix_GetError() << std::endl;
+                    SDL_Quit();
+                    is_play = 0;
+                }
+                music = Mix_LoadMUS(const_cast<char *>(playing_list[media_file_index].c_str()));
+                if (!music)
+                {
+                    std::cerr << "Failed to load music: " << Mix_GetError() << std::endl;
+                    Mix_CloseAudio();
+                    SDL_Quit();
+                    is_play = 0;
+                }
+                if (Mix_PlayMusic(music, -1) == -1)
+                {
+                    std::cerr << "Failed to play music: " << Mix_GetError() << std::endl;
+                    Mix_FreeMusic(music);
+                    Mix_CloseAudio();
+                    SDL_Quit();
+                    is_play = 0;
+                }
             }
-            music = Mix_LoadMUS(const_cast<char *>(playing_list[media_file_index].c_str()));
-            if (!music)
+            else
             {
-                std::cerr << "Failed to load music: " << Mix_GetError() << std::endl;
-                Mix_CloseAudio();
-                SDL_Quit();
-                is_play = 0;
-            }
-            if (Mix_PlayMusic(music, -1) == -1)
-            {
-                std::cerr << "Failed to play music: " << Mix_GetError() << std::endl;
-                Mix_FreeMusic(music);
-                Mix_CloseAudio();
-                SDL_Quit();
-                is_play = 0;
+                if (player_mp4.play_status)
+                {
+                    player_mp4.stopMusic();
+                }
+                if (player_mp4.initPlayer(const_cast<char *>(playing_list[media_file_index].c_str())))
+                {
+                    player_mp4.playMusic();
+                }
             }
         }
         else if (difftime(current, last) >= GetDuration(playing_list[media_file_index]) && is_replay)
@@ -1259,7 +1448,12 @@ void Application::thread_play_media()
         Screen_stack.pop();
         clean_stdin();
     }
-    Mix_FreeMusic(music);
-    Mix_CloseAudio();
-    SDL_Quit();
+    if (getFileExtension(playing_list[pre_media_file_index]) == "mp3") {
+        Mix_FreeMusic(music);
+        Mix_CloseAudio();
+        SDL_Quit();
+    }
+    else if (player_mp4.play_status){
+        player_mp4.stopMusic();
+    }
 }

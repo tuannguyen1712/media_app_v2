@@ -7,6 +7,9 @@ OBJ_DIR = ./Output
 TAG_LIB = -ltag
 SDL2 = -lSDL2
 SDL2_MIXER = -lSDL2_mixer
+LIBS_CONFIG = `pkg-config --libs libavformat libavcodec libswresample libswscale libavutil`
+
+LIBS := $(LIBS_CONFIG)
 
 # include file
 DRV_MODULE_INC := $(wildcard $(LIB_DIR)/*)
@@ -32,7 +35,7 @@ $(OBJ_DIR)/%.o:%.cpp
 	$(CC) -c $(CFLAGS) $(HFLAGS) $< -o $@ 
 
 $(TARGET):$(OBJ_FILE)
-	$(CC) $(OBJ_FILE) -o $(TARGET) $(TAG_LIB) $(SDL2) $(SDL2_MIXER)
+	$(CC) $(OBJ_FILE) -o $(TARGET) $(TAG_LIB) $(SDL2) $(SDL2_MIXER) $(LIBS)
 
 clean:
 	rm -f $(OBJ_DIR)/*.o $(TARGET)
