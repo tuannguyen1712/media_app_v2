@@ -150,6 +150,8 @@ void Application::Screen_start_act()
     }
     else if (opt == "4")
     {
+        is_play = 0;
+        thread_play.join();
         delete Screen_stack.top();
         Screen_stack.pop();
     }
