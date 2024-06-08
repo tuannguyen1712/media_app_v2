@@ -80,7 +80,7 @@ void Screen1::print_playlist_name(const int &index)
 
 void Screen1::print_orther()
 {
-    std::cout << "\n\t\t[<]Previous\t\t[>]Next\t\t[;]Replay\n";
+    std::cout << "\n\t\t[<]Previous\t\t[>]Next\t\t[;]Repeat\n";
     std::cout << "----------------------------------------------------------------------------------------------------";
     std::cout << "\n<[B]ack\t\t|<|[R]eturn\t\t[P]lay/[P]ause\t\t|>|[S]kip\t\t[-]Volume[+]" << std::endl;
     printf("=========================================================================================================================\n");
@@ -157,7 +157,7 @@ void Screen_find_result::display(int input, int input1)
     clear_terminal();
     printf("-------------PLAY MEDIA FILE-------------\n");
     printf("=========================================================================================================================\n");
-    printf("\n1. Find media files.\n");
+    printf("\n%d. Find media files.\n", input + 1);
     printf("Result\n");
 }
 
@@ -472,7 +472,7 @@ void Screen_play_media::display(int input, int input1)
 
     if (replay)
     {
-        std::cout << "\t\tReplay" << std::endl;
+        std::cout << "\t\tRepeat" << std::endl;
     }
     else
     {

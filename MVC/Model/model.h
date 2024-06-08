@@ -36,6 +36,7 @@ public:
     Playlist() {}
     Playlist(const std::string &name);
     std::string getName();
+    bool is_exist(const std::string &path);
     void addFile(const std::vector<std::string> &file);
     void removeFile(int index);
     void rename(const std::string &name);

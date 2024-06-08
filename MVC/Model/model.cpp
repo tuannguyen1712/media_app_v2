@@ -64,3 +64,13 @@ void Playlist::rename(const std::string &name)
     std::filesystem::rename(__name, new_name);
     __name = new_name;
 }
+
+bool Playlist::is_exist(const std::string &path)
+{
+    for (int i = 0; i < (int)__list.size(); i++) {
+        if (path == __list[i]) {
+            return true;
+        }
+    }
+    return false;
+}

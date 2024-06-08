@@ -189,12 +189,14 @@ void Application::Screen_start_act()
             Screen_stack.top()->setMedia(playing_list);
             list_files.assign(playing_list.begin(), playing_list.end());
             Screen_stack.push(new Screen_usb());
+            Screen_stack.push(new Screen_find_result());
             Screen_stack.push(new Screen_media_detail());
             Screen_stack.push(new Screen_play_media());
             break;
         default:
             break;
         }
+        menu = pre_menu;
     }
     try {
         menu = std::stoi(opt) - 1;
@@ -221,7 +223,7 @@ void Application::Screen_find_act()
 
 void Application::Screen_find_result_act()
 {
-    Screen_stack.top()->display();
+    Screen_stack.top()->display(menu);
     size = list_files.size();
     total_page = (size % FILES_PER_PAGE == 0) ? (size / FILES_PER_PAGE) : (size / FILES_PER_PAGE) + 1;
     // print_files_in_pages(list_files, page, size, total_page);
@@ -476,7 +478,7 @@ void Application::Screen_playlist_element_add_list_act()
     try
     {
         int i = std::stoi(opt) - 1;
-        if (i + 1 <= size)
+        if (i + 1 <= size && !List_playlist[pli].is_exist(list_files[i])) // edit this
         {
             List_playlist[pli].__list.push_back(list_files[i]);
             List_playlist[pli].addFile(List_playlist[pli].__list);
@@ -519,6 +521,7 @@ void Application::Screen_playlist_element_add_list_act()
             list_files.clear();
             page = 0;
             cnt = 0;
+            list_files.clear();
             delete Screen_stack.top();
             Screen_stack.pop();
             delete Screen_stack.top();
@@ -1278,16 +1281,21 @@ bool Application::createPlaylist(const std::string &fileName)
     std::string folderPath = SRC;
 
     std::string filePath = folderPath + "/" + fileName;
-
-    std::ofstream outFile(filePath);
-    if (outFile)
+    if (!std::filesystem::exists(filePath)) 
     {
-        outFile.close();
-        List_playlist.push_back(Playlist(fileName));
-        return true;
+        std::ofstream outFile(filePath);
+        if (outFile)
+        {
+            outFile.close();
+            List_playlist.push_back(Playlist(fileName));
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
-    else
-    {
+    else {
         return false;
     }
 }
