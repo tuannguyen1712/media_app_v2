@@ -188,7 +188,7 @@ void Application::Screen_start_act()
             Screen_stack.top()->media.clear();
             Screen_stack.top()->setMedia(playing_list);
             list_files.assign(playing_list.begin(), playing_list.end());
-            Screen_stack.push(new Screen_find());
+            // Screen_stack.push(new Screen_find());
             Screen_stack.push(new Screen_usb());
             Screen_stack.push(new Screen_media_detail());
             Screen_stack.push(new Screen_play_media());
@@ -292,6 +292,7 @@ void Application::Screen_usb_act()
         {
             delete Screen_stack.top();
             Screen_stack.pop();
+            list_files.clear();
         }
     }
 }
@@ -611,6 +612,7 @@ void Application::Screen_media_detail_act()
     {
         //multithread
         is_back = 0;
+        is_pause = 0;
         media_file_index = file_index;
         pre_total_page = total_page;
         if (!is_play) {
@@ -761,7 +763,9 @@ void Application::Screen_play_media_act()
         if (std::filesystem::exists(playing_list[ind]))
         {
             is_fst = 1;
+            is_pause = 0;
             media_file_index = ind;
+            pre_media_file_index = ind;
             last = time(NULL);
             if (music != NULL)
             {

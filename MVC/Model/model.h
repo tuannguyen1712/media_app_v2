@@ -6,7 +6,7 @@
 #include <filesystem>
 #include <iostream>
 
-#define SRC "/data/fpt_fresher/playlist/" // edit this
+#define SRC "/.../Playlist/" // edit this
 
 class Media
 {
