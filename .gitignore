@@ -1,5 +1,6 @@
 # Prerequisites
 *.d
+my_app
 
 # Compiled Object files
 *.slo
