@@ -13,9 +13,22 @@ Media GetMedia(const std::string &path)
         media.artist = tag->artist().to8Bit(true);
         media.album = tag->album().to8Bit(true);
         media.year = tag->year();
-        media.duration = properties->length();
+        media.duration = (long)properties->length();
+        media.extension = getFileExtension(path);
     }
     return media;
+}
+
+long GetDuration(const std::string &path)
+{
+    long ret;
+    TagLib::FileRef file(TagLib::FileName(path.c_str()));
+    if (!file.isNull() && file.tag())
+    {
+        TagLib::AudioProperties *properties = file.audioProperties();
+        ret = (long)properties->length();
+    }
+    return ret;
 }
 
 std::string GetName(const std::string &path)
@@ -94,4 +107,14 @@ bool Edit_Year(const std::string &path, int new_year)
     {
         return false;
     }
+}
+
+std::string getFileExtension(const std::string &filename)
+{
+    size_t pos = filename.find_last_of('.');
+    if (pos != std::string::npos)
+    {
+        return filename.substr(pos + 1);
+    }
+    return ""; // Empty string if no extension found
 }

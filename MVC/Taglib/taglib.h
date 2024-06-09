@@ -16,9 +16,11 @@
 // void Print_Table();
 std::string GetName(const std::string &path);
 Media GetMedia(const std::string &path);
+long GetDuration(const std::string &path);
 // void Print_end_Table();
 // void Print_Metadata(const std::string &path);
 bool Edit_Title(const std::string &path, std::string new_title);
 bool Edit_Artist(const std::string &path, std::string new_artist);
 bool Edit_Album(const std::string &path, std::string new_album);
 bool Edit_Year(const std::string &path, int new_year);
+std::string getFileExtension(const std::string &path);
