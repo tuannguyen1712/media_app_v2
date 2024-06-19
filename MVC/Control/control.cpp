@@ -134,10 +134,12 @@ void Application::Screen_start_act()
     if (opt == "1")
     {
         Screen_stack.push(new Screen_find());
+        menu = std::stoi(opt) - 1;
     }
     else if (opt == "2")
     {
         Screen_stack.push(new Screen_playlist());
+        menu = std::stoi(opt) - 1;
     }
     else if (opt == "3")
     {
@@ -148,6 +150,7 @@ void Application::Screen_start_act()
             Screen_stack.top()->usb_path = result;
             Screen_stack.push(new Screen_usb());
         }
+        menu = std::stoi(opt) - 1;
     }
     else if (opt == "4")
     {
@@ -198,10 +201,6 @@ void Application::Screen_start_act()
         }
         menu = pre_menu;
     }
-    try {
-        menu = std::stoi(opt) - 1;
-    }
-    catch (const std::invalid_argument &e) {}
 }
 
 void Application::Screen_find_act()
@@ -232,12 +231,12 @@ void Application::Screen_find_result_act()
     try
     {
         file_index = std::stoi(opt) - 1;
-        if (file_index + 1 <= size && pathExists(const_cast<char *>(list_files[file_index].c_str())))
+        if (file_index >= 0 && file_index + 1 <= size && pathExists(const_cast<char *>(list_files[file_index].c_str())))
         {
             Screen_stack.push(new Screen_media_detail);
         }
     }
-    catch (const std::invalid_argument &e)
+    catch (const std::exception &e)
     {
         if (opt == "B" || opt == "b")
         {
@@ -280,14 +279,14 @@ void Application::Screen_usb_act()
     try
     {
         int i = std::stoi(opt) - 1;
-        if (i < (int)Screen_stack.top()->usb_path.size())
+        if (i >= 0 && i < (int)Screen_stack.top()->usb_path.size())
         {
             Screen_stack.push(new Screen_find_result);
             find_files(const_cast<char *>(Screen_stack.top()->usb_path[i].c_str()), list_files, cnt);
             Screen_stack.top()->setMedia(list_files);
         }
     }
-    catch (const std::invalid_argument &e)
+    catch (const std::exception &e)
     {
         if (opt == "B" || opt == "b")
         {
@@ -314,12 +313,12 @@ void Application::Screen_playlist_act()
     try
     {
         pli = std::stoi(opt) - 1;
-        if (pli + 1 <= (int)List_playlist.size())
+        if (pli >= 0 && pli + 1 <= (int)List_playlist.size())
         {
             Screen_stack.push(new Screen_playlist_element);
         }
     }
-    catch (const std::invalid_argument &e)
+    catch (const std::exception &e)
     {
         if (opt == "B" || opt == "b")
         {
@@ -374,7 +373,7 @@ void Application::Screen_playlist_delete_act()
             Screen_stack.pop();
         }
     }
-    catch (const std::invalid_argument &e)
+    catch (const std::exception &e)
     {
     }
 }
@@ -396,12 +395,12 @@ void Application::Screen_playlist_element_act()
     try
     {
         file_index = std::stoi(opt) - 1;
-        if (file_index + 1 <= size && pathExists(const_cast<char *>(List_playlist[pli].__list[file_index].c_str())))
+        if (file_index >= 0 && file_index + 1 <= size && pathExists(const_cast<char *>(List_playlist[pli].__list[file_index].c_str())))
         {
             Screen_stack.push(new Screen_media_detail);
         }
     }
-    catch (const std::invalid_argument &e)
+    catch (const std::exception &e)
     {
         if (opt == "B" || opt == "b")
         {
@@ -478,13 +477,13 @@ void Application::Screen_playlist_element_add_list_act()
     try
     {
         int i = std::stoi(opt) - 1;
-        if (i + 1 <= size && !List_playlist[pli].is_exist(list_files[i])) // edit this
+        if (i >= 0 && i + 1 <= size && !List_playlist[pli].is_exist(list_files[i])) // edit this
         {
             List_playlist[pli].__list.push_back(list_files[i]);
             List_playlist[pli].addFile(List_playlist[pli].__list);
         }
     }
-    catch (const std::invalid_argument &e)
+    catch (const std::exception &e)
     {
         if (opt == "B" || opt == "b")
         {
@@ -542,13 +541,13 @@ void Application::Screen_playlist_element_delete_act()
     try
     {
         int i = std::stoi(opt) - 1;
-        if (i + 1 <= size)
+        if (i + 1 <= size && i >= 0)
         {
             List_playlist[pli].removeFile(i);
             Screen_stack.top()->media.erase(Screen_stack.top()->media.begin() + i);
         }
     }
-    catch (const std::invalid_argument &e)
+    catch (const std::exception &e)
     {
         if (opt == "B" || opt == "b")
         {
@@ -788,7 +787,7 @@ void Application::Screen_play_media_act()
     try
     {
         int ind = std::stoi(opt) - 1;
-        if (std::filesystem::exists(playing_list[ind]))
+        if (ind >= 0 && ind < size && std::filesystem::exists(playing_list[ind]))
         {
             is_fst = 1;
             if (getFileExtension(playing_list[media_file_index]) == "mp3")
@@ -856,7 +855,7 @@ void Application::Screen_play_media_act()
             }
         }
     }
-    catch (const std::invalid_argument &e)
+    catch (const std::exception &e)
     {
         if (opt == "+")
         {

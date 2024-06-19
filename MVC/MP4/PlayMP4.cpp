@@ -178,7 +178,7 @@ void Player_MP4::stopMusic()
     play_status = false;
     is_pause = 0;
     SDL_PauseAudio(0);
-    std::cout << "Stop" << std::endl;
+    // std::cout << "Stop" << std::endl;
     myThread.join();
     SDL_CloseAudio();
     SDL_Quit();

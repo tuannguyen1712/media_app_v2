@@ -25,7 +25,7 @@
 #include "utility.h"
 #include "PlayMP4.h"
 
-#define FILES_PER_PAGE 10
+#define FILES_PER_PAGE 25
 #define PLAYLIST_NUM 25
 
 class Application

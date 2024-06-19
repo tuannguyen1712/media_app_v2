@@ -12,7 +12,7 @@
 #define YEAR_WIDTH 10
 #define EXTENSION_WIDTH 10
 
-#define FILES_PER_PAGE 10
+#define FILES_PER_PAGE 25
 
 class Screen1
 {
