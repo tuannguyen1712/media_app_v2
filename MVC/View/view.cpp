@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include "utility.h"
 #include "view.h"
 
 void clean_stdin(void)
@@ -120,7 +121,7 @@ std::string Screen_start::getChoice()
     if (serial_port != -1)
     {
         thread_serial.join();
-        close(serial_port);
+        //close(serial_port);
     }
     opt = std::string(read_buf);
     // clean_stdin();
@@ -155,7 +156,7 @@ std::string Screen_find::getChoice()
     if (serial_port != -1)
     {
         thread_serial.join();
-        close(serial_port);
+        //close(serial_port);
     }
     opt = std::string(read_buf);
     // clean_stdin();
@@ -186,7 +187,7 @@ std::string Screen_find_result::getChoice()
     if (serial_port != -1)
     {
         thread_serial.join();
-        close(serial_port);
+        //close(serial_port);
     }
     opt = std::string(read_buf);
     // clean_stdin();
@@ -216,7 +217,7 @@ std::string Screen_playlist::getChoice()
     if (serial_port != -1)
     {
         thread_serial.join();
-        close(serial_port);
+        //close(serial_port);
     }
     opt = std::string(read_buf);
     // clean_stdin();
@@ -246,7 +247,7 @@ std::string Screen_playlist_element::getChoice()
     if (serial_port != -1)
     {
         thread_serial.join();
-        close(serial_port);
+        //close(serial_port);
     }
     opt = std::string(read_buf);
     // clean_stdin();
@@ -277,7 +278,7 @@ std::string Screen_playlist_element_add::getChoice()
     if (serial_port != -1)
     {
         thread_serial.join();
-        close(serial_port);
+        //close(serial_port);
     }
     opt = std::string(read_buf);
     // clean_stdin();
@@ -308,7 +309,7 @@ std::string Screen_playlist_element_add_list::getChoice()
     if (serial_port != -1)
     {
         thread_serial.join();
-        close(serial_port);
+        //close(serial_port);
     }
     opt = std::string(read_buf);
     // clean_stdin();
@@ -339,7 +340,7 @@ std::string Screen_playlist_add::getChoice()
     if (serial_port != -1)
     {
         thread_serial.join();
-        close(serial_port);
+        //close(serial_port);
     }
     opt = std::string(read_buf);
     // clean_stdin();
@@ -370,7 +371,7 @@ std::string Screen_playlist_delete::getChoice()
     if (serial_port != -1)
     {
         thread_serial.join();
-        close(serial_port);
+        //close(serial_port);
     }
     opt = std::string(read_buf);
     // clean_stdin();
@@ -401,7 +402,7 @@ std::string Screen_playlist_element_delete::getChoice()
     if (serial_port != -1)
     {
         thread_serial.join();
-        close(serial_port);
+        //close(serial_port);
     }
     opt = std::string(read_buf);
     // clean_stdin();
@@ -432,7 +433,7 @@ std::string Screen_playlist_rename::getChoice()
     if (serial_port != -1)
     {
         thread_serial.join();
-        close(serial_port);
+        //close(serial_port);
     }
     opt = std::string(read_buf);
     // clean_stdin();
@@ -463,7 +464,7 @@ std::string Screen_media_detail::getChoice()
     if (serial_port != -1)
     {
         thread_serial.join();
-        close(serial_port);
+        //close(serial_port);
     }
     opt = std::string(read_buf);
     // clean_stdin();
@@ -496,7 +497,7 @@ std::string Screen_media_rename::getChoice()
     if (serial_port != -1)
     {
         thread_serial.join();
-        close(serial_port);
+        //close(serial_port);
     }
     opt = std::string(read_buf);
     // clean_stdin();
@@ -569,7 +570,7 @@ std::string Screen_play_media::getChoice()
     if (serial_port != -1)
     {
         thread_serial.join();
-        close(serial_port);
+        //close(serial_port);
     }
     opt = std::string(read_buf);
     // clean_stdin();
@@ -607,7 +608,7 @@ std::string Screen_usb::getChoice()
     if (serial_port != -1)
     {
         thread_serial.join();
-        close(serial_port);
+        //close(serial_port);
     }
     opt = std::string(read_buf);
     // clean_stdin();
@@ -658,14 +659,27 @@ std::string left_align(const std::string &str, size_t width)
     return result;
 }
 
-int Screen1::Init_Serialport(char *port)
+int Screen1::Init_Serialport()
 {
-    int serial_port = open(port, O_RDWR);
+    std::string port = detect_serial_port();
+
+    if (port.empty())
+    {
+        if (serial_port != -1)
+        {
+            close(serial_port);
+            return -1;
+        }
+    }
+
+    std::string port_dir = "/dev/" + port;
+
+    int s_port = open(const_cast<char *>(port_dir.c_str()), O_RDWR);
     // Create new termios struct, we call it 'tty' for convention
     struct termios tty;
 
     // Read in existing settings, and handle any error
-    if (tcgetattr(serial_port, &tty) != 0)
+    if (tcgetattr(s_port, &tty) != 0)
     // if (serial_port != 0)
     {
         printf("Error %i from tcgetattr: %s\n", errno, strerror(errno));
@@ -700,12 +714,12 @@ int Screen1::Init_Serialport(char *port)
     cfsetospeed(&tty, B57600);
 
     // Save tty settings, also checking for error
-    if (tcsetattr(serial_port, TCSANOW, &tty) != 0)
+    if (tcsetattr(s_port, TCSANOW, &tty) != 0)
     {
         printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
         return -1;
     }
-    return serial_port;
+    return s_port;
 }
 
 void Screen1::thread_read_serial_port(void)
@@ -836,17 +850,7 @@ long long Screen1::getMillisecondsSinceEpoch()
 
 void Screen1::get_Choice()
 {
-    std::string port = detect_serial_port();
-    
-    if (port.empty())
-    {
-        serial_port = -1;
-    }
-    else
-    {
-        std::string port_dir = "/dev/" + port;
-        serial_port = Init_Serialport(const_cast<char *>(port_dir.c_str()));
-    }
+    serial_port = Init_Serialport();
 
     rcv_done = 0;
     serial_data = 0;
@@ -874,25 +878,17 @@ void Screen1::get_Choice()
     // if (serial_port != -1)
     // {
     //     thread_serial.join();
-    //     close(serial_port);
+    //     //close(serial_port);
     // }
 }
 
-std::string detect_serial_port()
+void Screen1::send_data_to_port(uint8_t type, uint8_t data)
 {
-    struct dirent *entry;
-    DIR *dp = opendir("/dev");
-    if (dp != NULL)
-    {
-        while ((entry = readdir(dp)))
-        {
-            if (strncmp(entry->d_name, "ttyACM", 6) == 0)
-            {
-                closedir(dp);
-                return std::string(entry->d_name);
-            }
-        }
-        closedir(dp);
+    if(serial_port != -1) {
+        uint8_t tx[4];
+        packing_frame_data(tx, 4, type, data);
+        write(serial_port, tx, sizeof(tx) - 1);
     }
-    return "";
-}
+} 
+
+// FF FF on 

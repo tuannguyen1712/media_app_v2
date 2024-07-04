@@ -682,7 +682,20 @@ void Application::Screen_media_detail_act()
                 }
             }
             last = time(NULL);
-            // edit
+
+            if (Screen_stack.top()->serial_port != -1)
+            {
+                Screen_stack.top()->send_data_to_port(SEND_TO_PORT, IS_PLAYING);
+            }
+            else
+            {
+                Screen_stack.top()->serial_port = Screen_stack.top()->Init_Serialport();
+                if (Screen_stack.top()->serial_port != -1)
+                {
+                    Screen_stack.top()->send_data_to_port(SEND_TO_PORT, IS_PLAYING);
+                }
+            }
+
             thread_play = std::thread(&Application::thread_play_media, this);
         }
         else if (is_play && (pre_menu != menu || pre_pli != pli || pre_media_file_index != media_file_index))
@@ -748,6 +761,15 @@ void Application::Screen_media_detail_act()
                 }
             }
             last = time(NULL);
+            if (Screen_stack.top()->serial_port != -1) {
+                Screen_stack.top()->send_data_to_port(SEND_TO_PORT, IS_PLAYING);
+            }
+            else {
+                Screen_stack.top()->serial_port = Screen_stack.top()->Init_Serialport();
+                if (Screen_stack.top()->serial_port != -1) {
+                    Screen_stack.top()->send_data_to_port(SEND_TO_PORT, IS_PLAYING);
+                }
+            }
             thread_play = std::thread(&Application::thread_play_media, this);
         }
         Screen_stack.push(new Screen_play_media);
@@ -857,6 +879,18 @@ void Application::Screen_play_media_act()
                     player_mp4.playMusic();
                 }
             }
+            if (Screen_stack.top()->serial_port != -1)
+            {
+                Screen_stack.top()->send_data_to_port(SEND_TO_PORT, IS_PLAYING);
+            }
+            else
+            {
+                Screen_stack.top()->serial_port = Screen_stack.top()->Init_Serialport();
+                if (Screen_stack.top()->serial_port != -1)
+                {
+                    Screen_stack.top()->send_data_to_port(SEND_TO_PORT, IS_PLAYING);
+                }
+            }
         }
     }
     catch (const std::invalid_argument &e)
@@ -916,6 +950,19 @@ void Application::Screen_play_media_act()
                 else {
                     SDL_PauseAudio(is_pause);
                 }
+
+                if (Screen_stack.top()->serial_port != -1)
+                {
+                    Screen_stack.top()->send_data_to_port(SEND_TO_PORT, IS_PLAYING);
+                }
+                else
+                {
+                    Screen_stack.top()->serial_port = Screen_stack.top()->Init_Serialport();
+                    if (Screen_stack.top()->serial_port != -1)
+                    {
+                        Screen_stack.top()->send_data_to_port(SEND_TO_PORT, IS_PLAYING);
+                    }
+                }
             }
             else
             {
@@ -928,6 +975,18 @@ void Application::Screen_play_media_act()
                     SDL_PauseAudio(is_pause);
                 }
                 is_fst = 0;
+                if (Screen_stack.top()->serial_port != -1)
+                {
+                    Screen_stack.top()->send_data_to_port(SEND_TO_PORT, IS_STOPPING);
+                }
+                else
+                {
+                    Screen_stack.top()->serial_port = Screen_stack.top()->Init_Serialport();
+                    if (Screen_stack.top()->serial_port != -1)
+                    {
+                        Screen_stack.top()->send_data_to_port(SEND_TO_PORT, IS_STOPPING);
+                    }
+                }
             }
         }
         else if (opt == "S" || opt == "s")
@@ -1037,6 +1096,18 @@ void Application::Screen_play_media_act()
                     player_mp4.playMusic();
                 }
             }
+            if (Screen_stack.top()->serial_port != -1)
+            {
+                Screen_stack.top()->send_data_to_port(SEND_TO_PORT, IS_PLAYING);
+            }
+            else
+            {
+                Screen_stack.top()->serial_port = Screen_stack.top()->Init_Serialport();
+                if (Screen_stack.top()->serial_port != -1)
+                {
+                    Screen_stack.top()->send_data_to_port(SEND_TO_PORT, IS_PLAYING);
+                }
+            }
         exit_s:
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
@@ -1135,6 +1206,18 @@ void Application::Screen_play_media_act()
                 if (player_mp4.initPlayer(const_cast<char *>(playing_list[media_file_index].c_str())))
                 {
                     player_mp4.playMusic();
+                }
+            }
+            if (Screen_stack.top()->serial_port != -1)
+            {
+                Screen_stack.top()->send_data_to_port(SEND_TO_PORT, IS_PLAYING);
+            }
+            else
+            {
+                Screen_stack.top()->serial_port = Screen_stack.top()->Init_Serialport();
+                if (Screen_stack.top()->serial_port != -1)
+                {
+                    Screen_stack.top()->send_data_to_port(SEND_TO_PORT, IS_PLAYING);
                 }
             }
         exit_r:
@@ -1365,6 +1448,9 @@ void Application::thread_play_media()
             Screen_stack.top()->display((int)difftime(current, last), media_file_index);
             Screen_stack.top()->printMedia(page, total_page);
             Screen_stack.top()->print_orther();
+            if (Screen_stack.top()->serial_port == -1) {
+                std::cout << "HERE\n";
+            }
         }
         if (difftime(current, last) >= GetDuration(playing_list[media_file_index]) && !is_replay)
         {
