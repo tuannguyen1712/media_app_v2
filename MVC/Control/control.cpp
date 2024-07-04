@@ -131,6 +131,8 @@ void Application::Screen_start_act()
     Screen_stack.top()->display(is_play);
     
     opt = Screen_stack.top()->getChoice();
+    // std::cout << opt << std::endl;
+    // sleep(5);
     if (opt == "1")
     {
         Screen_stack.push(new Screen_find());
@@ -680,6 +682,7 @@ void Application::Screen_media_detail_act()
                 }
             }
             last = time(NULL);
+            // edit
             thread_play = std::thread(&Application::thread_play_media, this);
         }
         else if (is_play && (pre_menu != menu || pre_pli != pli || pre_media_file_index != media_file_index))
@@ -858,6 +861,24 @@ void Application::Screen_play_media_act()
     }
     catch (const std::invalid_argument &e)
     {
+        if (opt.length() > 1 && opt[0] == 'v') {
+            try {
+                volume = std::stoi(opt.substr(1)) * 16;
+                if (getFileExtension(playing_list[media_file_index]) == "mp3")
+                {
+                    Mix_VolumeMusic(volume);
+                }
+                else
+                {
+                    player_mp4.volume = volume;
+                }
+                Screen_stack.top()->volume = volume;
+                // std::cout << volume << std::endl;
+            }
+            catch (const std::exception &e) {
+                // do nothing
+            }
+        }
         if (opt == "+")
         {
             volume = std::min(volume.load() + 16, MIX_MAX_VOLUME);
@@ -1151,11 +1172,12 @@ void Application::Screen_play_media_act()
             is_back = 1;
             // is_play = 0;
             // thread_play.join();
+            // Screen_stack.top()->thread_serial.join();
             delete Screen_stack.top();
             Screen_stack.pop();
             delete Screen_stack.top();
             Screen_stack.pop();
-            clean_stdin();
+            // clean_stdin();
         }
     }
 }

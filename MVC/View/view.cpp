@@ -115,9 +115,17 @@ std::string Screen_start::getChoice()
 {
     std::string opt;
     printf("\n=========================================================================================================================\n");
-    std::cout << "Enter your choice: ";
-    std::getline(std::cin, opt);
-    // clean_stdin\(\);
+    std::cout << "Enter your choice: \n";
+    get_Choice();
+    if (serial_port != -1)
+    {
+        thread_serial.join();
+        close(serial_port);
+    }
+    opt = std::string(read_buf);
+    // clean_stdin();
+    // std::getline(std::cin, opt);
+    // clean_stdin();
     return opt;
 }
 
@@ -141,9 +149,16 @@ std::string Screen_find::getChoice()
 {
     std::string opt;
     printf("\n=========================================================================================================================\n");
-    std::cout << "Enter your choice: ";
-    std::getline(std::cin, opt);
-    // clean_stdin\(\);
+    std::cout << "Enter your choice: " << std::endl;
+    sleep(3);
+    get_Choice();
+    if (serial_port != -1)
+    {
+        thread_serial.join();
+        close(serial_port);
+    }
+    opt = std::string(read_buf);
+    // clean_stdin();
     return opt;
 }
 
@@ -166,9 +181,15 @@ std::string Screen_find_result::getChoice()
     std::string opt;
     std::cout << "<[B]ack\t\t[<]Previous\t\t[>]Next" << std::endl;
     printf("\n=========================================================================================================================\n");
-    std::cout << "Enter your choice: ";
-    std::getline(std::cin, opt);
-    // clean_stdin\(\);
+    std::cout << "Enter your choice:\n ";
+    get_Choice();
+    if (serial_port != -1)
+    {
+        thread_serial.join();
+        close(serial_port);
+    }
+    opt = std::string(read_buf);
+    // clean_stdin();
     return opt;
 }
 
@@ -190,9 +211,15 @@ std::string Screen_playlist::getChoice()
     std::string opt;
     std::cout << "<[B]ack\t\t[A]dd\t\t[D]elete" << std::endl;
     printf("\n=========================================================================================================================\n");
-    std::cout << "\nEnter your choice: ";
-    std::getline(std::cin, opt);
-    // clean_stdin\(\);
+    std::cout << "\nEnter your choice: \n";
+    get_Choice();
+    if (serial_port != -1)
+    {
+        thread_serial.join();
+        close(serial_port);
+    }
+    opt = std::string(read_buf);
+    // clean_stdin();
     return opt;
 }
 
@@ -214,9 +241,15 @@ std::string Screen_playlist_element::getChoice()
     std::string opt;
     std::cout << "<[B]ack\t\t[A]dd\t\t[D]elete\t\t[R]ename\t\t[<]Previous\t\t[>]Next" << std::endl;
     printf("\n=========================================================================================================================\n");
-    std::cout << "\nEnter your choice: ";
-    std::getline(std::cin, opt);
-    // clean_stdin\(\);
+    std::cout << "\nEnter your choice: \n";
+    get_Choice();
+    if (serial_port != -1)
+    {
+        thread_serial.join();
+        close(serial_port);
+    }
+    opt = std::string(read_buf);
+    // clean_stdin();
     return opt;
 }
 
@@ -239,9 +272,15 @@ std::string Screen_playlist_element_add::getChoice()
     std::cout << "Enter soucre folder: " << std::endl;
     std::cout << "<[B]ack" << std::endl;
     printf("=========================================================================================================================\n");
-    std::cout << "\nEnter your choice: ";
-    std::getline(std::cin, opt);
-    // clean_stdin\(\);
+    std::cout << "\nEnter your choice: \n";
+    get_Choice();
+    if (serial_port != -1)
+    {
+        thread_serial.join();
+        close(serial_port);
+    }
+    opt = std::string(read_buf);
+    // clean_stdin();
     return opt;
 }
 
@@ -264,9 +303,15 @@ std::string Screen_playlist_element_add_list::getChoice()
     std::cout << "Enter file number you want to add: " << std::endl;
     std::cout << "<[B]ack\t\t[<]Previous\t\t[>]Next\t\t[D]one" << std::endl;
     printf("=========================================================================================================================\n");
-    std::cout << "\nEnter your choice: ";
-    std::getline(std::cin, opt);
-    // clean_stdin\(\);
+    std::cout << "\nEnter your choice: \n";
+    get_Choice();
+    if (serial_port != -1)
+    {
+        thread_serial.join();
+        close(serial_port);
+    }
+    opt = std::string(read_buf);
+    // clean_stdin();
     return opt;
 }
 
@@ -289,9 +334,15 @@ std::string Screen_playlist_add::getChoice()
     std::cout << "Enter playlist name: " << std::endl;
     std::cout << "<[B]ack" << std::endl;
     printf("\n=========================================================================================================================\n");
-    std::cout << "\nEnter your choice: ";
-    std::getline(std::cin, opt);
-    // clean_stdin\(\);
+    std::cout << "\nEnter your choice: \n";
+    get_Choice();
+    if (serial_port != -1)
+    {
+        thread_serial.join();
+        close(serial_port);
+    }
+    opt = std::string(read_buf);
+    // clean_stdin();
     return opt;
 }
 
@@ -314,9 +365,15 @@ std::string Screen_playlist_delete::getChoice()
     std::cout << "Enter index of playlist: " << std::endl;
     std::cout << "<[B]ack" << std::endl;
     printf("=========================================================================================================================\n");
-    std::cout << "\nEnter your choice: ";
-    std::getline(std::cin, opt);
-    // clean_stdin\(\);
+    std::cout << "\nEnter your choice: \n";
+    get_Choice();
+    if (serial_port != -1)
+    {
+        thread_serial.join();
+        close(serial_port);
+    }
+    opt = std::string(read_buf);
+    // clean_stdin();
     return opt;
 }
 
@@ -339,9 +396,15 @@ std::string Screen_playlist_element_delete::getChoice()
     std::cout << "Enter index of element: " << std::endl;
     std::cout << "<[B]ack\t\t[<]Previous\t\t[>]Next" << std::endl;
     printf("=========================================================================================================================\n");
-    std::cout << "\nEnter your choice: ";
-    std::getline(std::cin, opt);
-    // clean_stdin\(\);
+    std::cout << "\nEnter your choice: \n";
+    get_Choice();
+    if (serial_port != -1)
+    {
+        thread_serial.join();
+        close(serial_port);
+    }
+    opt = std::string(read_buf);
+    // clean_stdin();
     return opt;
 }
 
@@ -364,9 +427,15 @@ std::string Screen_playlist_rename::getChoice()
     std::cout << "\nRename playlist\nEnter new name: " << std::endl;
     std::cout << "<[B]ack" << std::endl;
     printf("=========================================================================================================================\n");
-    std::cout << "Enter your choice: ";
-    std::getline(std::cin, opt);
-    // clean_stdin\(\);
+    std::cout << "Enter your choice: \n";
+    get_Choice();
+    if (serial_port != -1)
+    {
+        thread_serial.join();
+        close(serial_port);
+    }
+    opt = std::string(read_buf);
+    // clean_stdin();
     return opt;
 }
 
@@ -389,9 +458,15 @@ std::string Screen_media_detail::getChoice()
     std::string opt;
     std::cout << "<[B]ack\t\t|>[P]lay\t\t[R]ename" << std::endl;
     printf("=========================================================================================================================\n");
-    std::cout << "\nEnter your choice: ";
-    std::getline(std::cin, opt);
-    // clean_stdin\(\);
+    std::cout << "\nEnter your choice: \n";
+    get_Choice();
+    if (serial_port != -1)
+    {
+        thread_serial.join();
+        close(serial_port);
+    }
+    opt = std::string(read_buf);
+    // clean_stdin();
     return opt;
 }
 
@@ -416,9 +491,15 @@ std::string Screen_media_rename::getChoice()
     std::cout << "Enter new name: \n";
     std::cout << "<[B]ack\t\t" << std::endl;
     printf("=========================================================================================================================\n");
-    std::cout << "\nEnter your choice: ";
-    std::getline(std::cin, opt);
-    // clean_stdin\(\);
+    std::cout << "\nEnter your choice: \n";
+    get_Choice();
+    if (serial_port != -1)
+    {
+        thread_serial.join();
+        close(serial_port);
+    }
+    opt = std::string(read_buf);
+    // clean_stdin();
     return opt;
 }
 
@@ -484,8 +565,14 @@ std::string Screen_play_media::getChoice()
 {
     std::string opt;
     // std::getline(std::cin, opt);
-    std::cin >> opt;
-    // clean_stdin\(\);
+    get_Choice();
+    if (serial_port != -1)
+    {
+        thread_serial.join();
+        close(serial_port);
+    }
+    opt = std::string(read_buf);
+    // clean_stdin();
     return opt;
 }
 
@@ -515,9 +602,15 @@ std::string Screen_usb::getChoice()
 {
     std::string opt;
     printf("=========================================================================================================================\n");
-    std::cout << "\nEnter your choice: ";
-    std::getline(std::cin, opt);
-    // clean_stdin\(\);
+    std::cout << "\nEnter your choice: \n";
+    get_Choice();
+    if (serial_port != -1)
+    {
+        thread_serial.join();
+        close(serial_port);
+    }
+    opt = std::string(read_buf);
+    // clean_stdin();
     return opt;
 }
 
@@ -563,4 +656,243 @@ std::string left_align(const std::string &str, size_t width)
     std::string result = converter.to_bytes(u32_str);
     result.append(width - length, ' '); // Thêm khoảng trắng cho đủ độ rộng
     return result;
+}
+
+int Screen1::Init_Serialport(char *port)
+{
+    int serial_port = open(port, O_RDWR);
+    // Create new termios struct, we call it 'tty' for convention
+    struct termios tty;
+
+    // Read in existing settings, and handle any error
+    if (tcgetattr(serial_port, &tty) != 0)
+    // if (serial_port != 0)
+    {
+        printf("Error %i from tcgetattr: %s\n", errno, strerror(errno));
+        return -1;
+    }
+
+    tty.c_cflag &= ~PARENB;        // Clear parity bit, disabling parity (most common)
+    tty.c_cflag &= ~CSTOPB;        // Clear stop field, only one stop bit used in communication (most common)
+    tty.c_cflag &= ~CSIZE;         // Clear all bits that set the data size
+    tty.c_cflag |= CS8;            // 8 bits per byte (most common)
+    tty.c_cflag &= ~CRTSCTS;       // Disable RTS/CTS hardware flow control (most common)
+    tty.c_cflag |= CREAD | CLOCAL; // Turn on READ & ignore ctrl lines (CLOCAL = 1)
+
+    tty.c_lflag &= ~ICANON;
+    tty.c_lflag &= ~ECHO;                                                        // Disable echo
+    tty.c_lflag &= ~ECHOE;                                                       // Disable erasure
+    tty.c_lflag &= ~ECHONL;                                                      // Disable new-line echo
+    tty.c_lflag &= ~ISIG;                                                        // Disable interpretation of INTR, QUIT and SUSP
+    tty.c_iflag &= ~(IXON | IXOFF | IXANY);                                      // Turn off s/w flow ctrl
+    tty.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL); // Disable any special handling of received bytes
+
+    tty.c_oflag &= ~OPOST; // Prevent special interpretation of output bytes (e.g. newline chars)
+    tty.c_oflag &= ~ONLCR; // Prevent conversion of newline to carriage return/line feed
+    // tty.c_oflag &= ~OXTABS; // Prevent conversion of tabs to spaces (NOT PRESENT ON LINUX)
+    // tty.c_oflag &= ~ONOEOT; // Prevent removal of C-d chars (0x004) in output (NOT PRESENT ON LINUX)
+
+    tty.c_cc[VTIME] = 0; // Wait for up to (2 deciseconds), returning as soon as any data is received.
+    tty.c_cc[VMIN] = 0;
+
+    // Set in/out baud rate to be 9600
+    cfsetispeed(&tty, B57600);
+    cfsetospeed(&tty, B57600);
+
+    // Save tty settings, also checking for error
+    if (tcsetattr(serial_port, TCSANOW, &tty) != 0)
+    {
+        printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
+        return -1;
+    }
+    return serial_port;
+}
+
+void Screen1::thread_read_serial_port(void)
+{
+    uint8_t rx_buf[8];
+    memset(rx_buf, 0, sizeof(rx_buf));
+    read_buf_cnt = 0;
+    while (!rcv_done)
+    {
+        // std::cout << rcv_done << std::endl;
+        uint8_t chr;
+        int num_bytes = read(serial_port, &chr, 1);
+        if (num_bytes)
+        {
+            rx_buf[read_buf_cnt] = chr;
+            read_buf_cnt++;
+            last_rcv = getMillisecondsSinceEpoch();
+        }
+        if (getMillisecondsSinceEpoch() - last_rcv > 20 && read_buf_cnt >= 3)
+        {
+            rcv_done = 1;
+            serial_data = 1;
+            rx_buf[sizeof(rx_buf)] = 0;
+        }
+    }
+    if (serial_data == 1) {
+        if (rx_buf[0] == 0)
+        {
+            mtx.lock();
+            sprintf(read_buf, "v%d", rx_buf[1]);
+            mtx.unlock();
+        }
+        else if (rx_buf[0] == 0xF0)
+        {
+            switch (rx_buf[1])
+            {
+            case 0x01:
+                mtx.lock();
+                sprintf(read_buf, "P");
+                mtx.unlock();
+                break;
+            case 0x02:
+                mtx.lock();
+                sprintf(read_buf, "R");
+                mtx.unlock();
+                break;
+            case 0x03:
+                mtx.lock();
+                sprintf(read_buf, "S");
+                mtx.unlock();
+                break;
+            case 0x04:
+                mtx.lock();
+                sprintf(read_buf, ";");
+                mtx.unlock();
+                break;
+            case 0x05:
+                mtx.lock();
+                sprintf(read_buf, "B");
+                mtx.unlock();
+                break;
+            default:
+                break;
+            }
+        }
+        else if (rx_buf[0] == 0xFF)
+        {
+            mtx.lock();
+            sprintf(read_buf, "%d", rx_buf[1]);
+            mtx.unlock();
+        }
+    }
+}
+
+int Screen1::read_from_keyboard(char *buff, uint32_t len, uint32_t sec)
+{
+    struct timeval tv;
+    fd_set readfds;
+    int retval;
+
+    // Chỉnh timeout là 5 giây
+    tv.tv_sec = sec;
+    tv.tv_usec = 0;
+
+    // Xóa tất cả các bit của readfds
+    FD_ZERO(&readfds);
+    // Thêm stdin (fd 0) vào tập hợp readfds
+    FD_SET(STDIN_FILENO, &readfds);
+    retval = select(STDIN_FILENO + 1, &readfds, NULL, NULL, &tv);
+
+    if (retval == -1)
+    {
+        perror("select()");
+        return 0;
+    }
+    else if (retval)
+    {
+        // std::cout << "Dữ liệu có sẵn trong stdin trong vòng 5 giây.\n";
+        char buffer[256];
+        fgets(buffer, len, stdin);
+        buffer[strlen(buffer) - 1] = 0;
+        if (!strlen(read_buf))
+        {
+            mtx.lock();
+            strcpy(read_buf, buffer);
+            mtx.unlock();
+        }
+        return 1;
+    }
+    else
+    {
+        // std::cout << "Không có dữ liệu nhập từ bàn phím trong vòng 1 giây.\n";
+        return 0;
+    }
+}
+
+long long Screen1::getMillisecondsSinceEpoch()
+{
+    // Lấy thời gian hiện tại
+    auto now = std::chrono::system_clock::now();
+
+    // Chuyển đổi thời gian hiện tại sang thời gian tính bằng mili giây kể từ epoch
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+
+    // Trả về giá trị mili giây
+    return duration.count();
+}
+
+void Screen1::get_Choice()
+{
+    std::string port = detect_serial_port();
+    
+    if (port.empty())
+    {
+        serial_port = -1;
+    }
+    else
+    {
+        std::string port_dir = "/dev/" + port;
+        serial_port = Init_Serialport(const_cast<char *>(port_dir.c_str()));
+    }
+
+    rcv_done = 0;
+    serial_data = 0;
+
+    memset(read_buf, 0, strlen(read_buf));
+
+    if (serial_port != -1)
+    {
+        //  thread_serial = std::thread(thread_read_serial_port);
+        thread_serial = std::thread(&Screen1::thread_read_serial_port, this);
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        tcflush(serial_port, TCIOFLUSH);
+    }
+
+    while (!rcv_done)
+    {
+        // std::cout << rcv_done << std::endl;
+        if (read_from_keyboard(read_buf, 8, 1)) {
+            rcv_done = 1;
+            serial_data = 0;
+        }
+        // std::cout << rcv_done << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    }
+    // if (serial_port != -1)
+    // {
+    //     thread_serial.join();
+    //     close(serial_port);
+    // }
+}
+
+std::string detect_serial_port()
+{
+    struct dirent *entry;
+    DIR *dp = opendir("/dev");
+    if (dp != NULL)
+    {
+        while ((entry = readdir(dp)))
+        {
+            if (strncmp(entry->d_name, "ttyACM", 6) == 0)
+            {
+                closedir(dp);
+                return std::string(entry->d_name);
+            }
+        }
+        closedir(dp);
+    }
+    return "";
 }
