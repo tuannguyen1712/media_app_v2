@@ -51,14 +51,18 @@ protected:
 
 
 public:
-    int serial_port = -1;
+    
     static std::vector<Media> media;
     static std::string playlist;
     static std::string name;
     static std::vector<std::string> usb_path;
     static int volume;
     static int replay;
+
+    static int serial_port;
+    static int playing_index;
     std::thread thread_serial;
+
     Screen1(){};
     void setMedia(std::vector<std::string> &input);
     void printMedia(const int &page, const int &total_page);

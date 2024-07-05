@@ -24,6 +24,9 @@ std::vector<std::string> Screen1::usb_path;
 int Screen1::volume = 0;
 int Screen1::replay = 0;
 
+int Screen1::serial_port = -1;
+int Screen1::playing_index = 0;
+
 void Screen1::setMedia(std::vector<std::string> &input)
 {
     media.clear();
@@ -52,6 +55,9 @@ void Screen1::printMedia(const int &page, const int &total_page)
     std::cout << "-------------------------------------------------------------------------------------------------------------------------" << std::endl;
     for (int i = page * FILES_PER_PAGE + 1; i <= (page + 1) * FILES_PER_PAGE && i <= (int)media.size(); i++)
     {
+        if (i == playing_index) {
+            std::cout << "\033[1;30;47m";
+        }
         std::cout << std::setw(4) << std::left << i;
         // std::cout << "| " << std::setw(TITLE_WIDTH) << std::left << media[i - 1].name
         //           << "| " << std::setw(ARTIRST_WIDTH) << std::left << media[i - 1].artist
@@ -63,8 +69,14 @@ void Screen1::printMedia(const int &page, const int &total_page)
                   << "| " << std::left << left_align(truncate_utf8(media[i - 1].album, ALBUM_WIDTH - 2), ALBUM_WIDTH)
                   << "| " << std::setw(YEAR_WIDTH) << std::left << media[i - 1].year
                   << "| " << std::setw(EXTENSION_WIDTH) << std::left << media[i - 1].extension;
-        printf("| %02d:%02d\n", media[i - 1].duration / 60, media[i - 1].duration % 60);
+        printf("| %02d:%02d", media[i - 1].duration / 60, media[i - 1].duration % 60);
+        if (i == playing_index)
+        {
+            std::cout << "\033[0m";
+        }
+        std::cout << std::endl;
     }
+
     std::cout << "-------------------------------------------------------------------------------------------------------------------------" << std::endl;
     std::cout << "Page" << page + 1 << "/" << total_page << std::endl
               << std::endl;
@@ -517,6 +529,7 @@ void Screen_play_media::display(int input, int input1)
     printf("\nCurrent file: ");
     // std::cout << name << std::endl;
     std::cout << "[" << input1 + 1 << "]. " << media[input1].name << std::endl;
+    playing_index = input1 + 1;
     printf("\n\t%02d:%02d/%02d:%02d\n", input / 60, input % 60, media[input1].duration / 60, media[input1].duration % 60);
     // std::cout << input / 60 << ":" << input % 60 << "/" << media.duration / 60 << "/" << media.duration % 60 << std::endl;
     double ratio = (double)input / media[input1].duration;

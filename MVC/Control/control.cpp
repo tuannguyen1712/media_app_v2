@@ -813,7 +813,7 @@ void Application::Screen_play_media_act()
     try
     {
         int ind = std::stoi(opt) - 1;
-        if (std::filesystem::exists(playing_list[ind]))
+        if (ind >= 0 && ind < size && std::filesystem::exists(playing_list[ind]))
         {
             is_fst = 1;
             if (getFileExtension(playing_list[media_file_index]) == "mp3")
@@ -828,6 +828,7 @@ void Application::Screen_play_media_act()
                 player_mp4.stopMusic();
             }
             media_file_index = ind;
+            
             is_pause = 0;
             pre_media_file_index = ind;
             last = time(NULL);
@@ -1446,10 +1447,10 @@ void Application::thread_play_media()
         }
         if (!is_back) {
             Screen_stack.top()->display((int)difftime(current, last), media_file_index);
-            Screen_stack.top()->printMedia(page, total_page);
+            Screen_stack.top()->printMedia(media_file_index / 10, total_page);
             Screen_stack.top()->print_orther();
             if (Screen_stack.top()->serial_port == -1) {
-                std::cout << "HERE\n";
+                // std::cout << "HERE\n";
             }
         }
         if (difftime(current, last) >= GetDuration(playing_list[media_file_index]) && !is_replay)
