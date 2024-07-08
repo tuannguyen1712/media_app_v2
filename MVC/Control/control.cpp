@@ -155,7 +155,20 @@ void Application::Screen_start_act()
     {
         if (is_play) {
             is_play = 0;
+             
             thread_play.join();
+        }
+        if (Screen_stack.top()->serial_port != -1)
+        {
+            Screen_stack.top()->send_data_to_port(SEND_TO_PORT, 0xF0);
+        }
+        else
+        {
+            Screen_stack.top()->serial_port = Screen_stack.top()->Init_Serialport();
+            if (Screen_stack.top()->serial_port != -1)
+            {
+                Screen_stack.top()->send_data_to_port(SEND_TO_PORT, 0xF0);
+            }
         }
         delete Screen_stack.top();
         Screen_stack.pop();
@@ -229,7 +242,7 @@ void Application::Screen_find_result_act()
     size = list_files.size();
     total_page = (size % FILES_PER_PAGE == 0) ? (size / FILES_PER_PAGE) : (size / FILES_PER_PAGE) + 1;
     // print_files_in_pages(list_files, page, size, total_page);
-    Screen_stack.top()->printMedia(page, total_page);
+    Screen_stack.top()->printMedia(page, total_page, 0);
     opt = Screen_stack.top()->getChoice();
     try
     {
@@ -389,7 +402,7 @@ void Application::Screen_playlist_element_act()
     Screen_stack.top()->print_playlist_name(pli);
     size = List_playlist[pli].__list.size();
     total_page = (size % FILES_PER_PAGE == 0) ? (size / FILES_PER_PAGE) : (size / FILES_PER_PAGE) + 1;
-    Screen_stack.top()->printMedia(page, total_page); 
+    Screen_stack.top()->printMedia(page, total_page, 0); 
     // if (!playing_list.empty())
     // {
     //     std::cout << media_file_index << ":" << file_index << ": " << playing_list[0] << std::endl;
@@ -475,7 +488,7 @@ void Application::Screen_playlist_element_add_list_act()
     Screen_stack.top()->print_playlist_name(pli);
     size = list_files.size();
     total_page = (size % FILES_PER_PAGE == 0) ? (size / FILES_PER_PAGE) : (size / FILES_PER_PAGE) + 1;
-    Screen_stack.top()->printMedia(page, total_page);
+    Screen_stack.top()->printMedia(page, total_page, 0);
     opt = Screen_stack.top()->getChoice();
     try
     {
@@ -539,7 +552,7 @@ void Application::Screen_playlist_element_delete_act()
     Screen_stack.top()->print_playlist_name(pli);
     size = List_playlist[pli].__list.size();
     total_page = (size % FILES_PER_PAGE == 0) ? (size / FILES_PER_PAGE) : (size / FILES_PER_PAGE) + 1;
-    Screen_stack.top()->printMedia(page, total_page);
+    Screen_stack.top()->printMedia(page, total_page, 0);
     opt = Screen_stack.top()->getChoice();
     try
     {
@@ -624,6 +637,7 @@ void Application::Screen_media_detail_act()
             pre_pli = pli;
             pre_media_file_index = media_file_index;
             Screen_stack.top()->volume = volume;
+             
             is_play = 1;
             is_fst = 1;
             if (list_files.empty())
@@ -644,14 +658,16 @@ void Application::Screen_media_detail_act()
             if (getFileExtension(playing_list[media_file_index]) == "mp3") {
                 if (SDL_Init(SDL_INIT_AUDIO) < 0)
                 {
-                std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
-                is_play = 0;
+                    std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
+                    is_play = 0;
+                     
                 }
                 if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
                 {
                     std::cerr << "Failed to initialize SDL_mixer: " << Mix_GetError() << std::endl;
                     SDL_Quit();
                     is_play = 0;
+                     
                 }
                 music = Mix_LoadMUS(const_cast<char *>(playing_list[media_file_index].c_str()));
                 if (!music)
@@ -660,6 +676,7 @@ void Application::Screen_media_detail_act()
                     Mix_CloseAudio();
                     SDL_Quit();
                     is_play = 0;
+                     
                 }
                 Mix_VolumeMusic(volume);
                 if (Mix_PlayMusic(music, -1) == -1)
@@ -669,6 +686,7 @@ void Application::Screen_media_detail_act()
                     Mix_CloseAudio();
                     SDL_Quit();
                     is_play = 0;
+                     
                 }
             }
             else {
@@ -695,7 +713,7 @@ void Application::Screen_media_detail_act()
                     Screen_stack.top()->send_data_to_port(SEND_TO_PORT, IS_PLAYING);
                 }
             }
-
+            Screen_stack.top()->is_play = 1;
             thread_play = std::thread(&Application::thread_play_media, this);
         }
         else if (is_play && (pre_menu != menu || pre_pli != pli || pre_media_file_index != media_file_index))
@@ -707,6 +725,7 @@ void Application::Screen_media_detail_act()
             pre_media_file_index = media_file_index;
             Screen_stack.top()->volume = volume;
             is_play = 1;
+             
             is_fst = 1;
             if (list_files.empty())
             {
@@ -724,12 +743,14 @@ void Application::Screen_media_detail_act()
                 {
                     std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
                     is_play = 0;
+                     
                 }
                 if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
                 {
                     std::cerr << "Failed to initialize SDL_mixer: " << Mix_GetError() << std::endl;
                     SDL_Quit();
                     is_play = 0;
+                     
                 }
                 music = Mix_LoadMUS(const_cast<char *>(playing_list[media_file_index].c_str()));
                 if (!music)
@@ -738,6 +759,7 @@ void Application::Screen_media_detail_act()
                     Mix_CloseAudio();
                     SDL_Quit();
                     is_play = 0;
+                     
                 }
                 Mix_VolumeMusic(volume);
                 if (Mix_PlayMusic(music, -1) == -1)
@@ -747,6 +769,7 @@ void Application::Screen_media_detail_act()
                     Mix_CloseAudio();
                     SDL_Quit();
                     is_play = 0;
+                     
                 }
             }
             else
@@ -770,6 +793,7 @@ void Application::Screen_media_detail_act()
                     Screen_stack.top()->send_data_to_port(SEND_TO_PORT, IS_PLAYING);
                 }
             }
+            Screen_stack.top()->is_play = 1;
             thread_play = std::thread(&Application::thread_play_media, this);
         }
         Screen_stack.push(new Screen_play_media);
@@ -813,7 +837,7 @@ void Application::Screen_play_media_act()
     try
     {
         int ind = std::stoi(opt) - 1;
-        if (std::filesystem::exists(playing_list[ind]))
+        if (ind >= 0 && ind < size && std::filesystem::exists(playing_list[ind]))
         {
             is_fst = 1;
             if (getFileExtension(playing_list[media_file_index]) == "mp3")
@@ -828,6 +852,7 @@ void Application::Screen_play_media_act()
                 player_mp4.stopMusic();
             }
             media_file_index = ind;
+            
             is_pause = 0;
             pre_media_file_index = ind;
             last = time(NULL);
@@ -837,12 +862,14 @@ void Application::Screen_play_media_act()
                 {
                     std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
                     is_play = 0;
+                     
                 }
                 if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
                 {
                     std::cerr << "Failed to initialize SDL_mixer: " << Mix_GetError() << std::endl;
                     SDL_Quit();
                     is_play = 0;
+                     
                 }
                 if (music != NULL)
                 {
@@ -858,6 +885,7 @@ void Application::Screen_play_media_act()
                     Mix_CloseAudio();
                     SDL_Quit();
                     is_play = 0;
+                     
                 }
                 if (Mix_PlayMusic(music, -1) == -1)
                 {
@@ -866,6 +894,7 @@ void Application::Screen_play_media_act()
                     Mix_CloseAudio();
                     SDL_Quit();
                     is_play = 0;
+                     
                 }
             }
             else
@@ -891,6 +920,7 @@ void Application::Screen_play_media_act()
                     Screen_stack.top()->send_data_to_port(SEND_TO_PORT, IS_PLAYING);
                 }
             }
+            Screen_stack.top()->is_play = 1;
         }
     }
     catch (const std::invalid_argument &e)
@@ -963,6 +993,7 @@ void Application::Screen_play_media_act()
                         Screen_stack.top()->send_data_to_port(SEND_TO_PORT, IS_PLAYING);
                     }
                 }
+                Screen_stack.top()->is_play = 1;
             }
             else
             {
@@ -987,6 +1018,7 @@ void Application::Screen_play_media_act()
                         Screen_stack.top()->send_data_to_port(SEND_TO_PORT, IS_STOPPING);
                     }
                 }
+                Screen_stack.top()->is_play = 0;
             }
         }
         else if (opt == "S" || opt == "s")
@@ -1015,6 +1047,7 @@ void Application::Screen_play_media_act()
             if (err_idx == media_file_index && err && err_cnt == size)
             {
                 is_play = 0;
+                 
                 err = 0;
                 err_cnt = 0;
                 err_idx = -2;
@@ -1059,12 +1092,14 @@ void Application::Screen_play_media_act()
                 {
                     std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
                     is_play = 0;
+                     
                 }
                 if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
                 {
                     std::cerr << "Failed to initialize SDL_mixer: " << Mix_GetError() << std::endl;
                     SDL_Quit();
                     is_play = 0;
+                     
                 }
                 music = Mix_LoadMUS(const_cast<char *>(playing_list[media_file_index].c_str()));
                 // std::cout << "HERE\n";
@@ -1075,6 +1110,7 @@ void Application::Screen_play_media_act()
                     Mix_CloseAudio();
                     SDL_Quit();
                     is_play = 0;
+                     
                 }
                 if (Mix_PlayMusic(music, -1) == -1)
                 {
@@ -1083,6 +1119,7 @@ void Application::Screen_play_media_act()
                     Mix_CloseAudio();
                     SDL_Quit();
                     is_play = 0;
+                     
                 }
             }
             else
@@ -1108,6 +1145,7 @@ void Application::Screen_play_media_act()
                     Screen_stack.top()->send_data_to_port(SEND_TO_PORT, IS_PLAYING);
                 }
             }
+            Screen_stack.top()->is_play = 1;
         exit_s:
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
@@ -1135,6 +1173,7 @@ void Application::Screen_play_media_act()
             if (err_idx == media_file_index && err && err_cnt == size)
             {
                 is_play = 0;
+                 
                 err = 0;
                 err_cnt = 0;
                 err_idx = -2;
@@ -1174,12 +1213,14 @@ void Application::Screen_play_media_act()
                 {
                     std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
                     is_play = 0;
+                     
                 }
                 if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
                 {
                     std::cerr << "Failed to initialize SDL_mixer: " << Mix_GetError() << std::endl;
                     SDL_Quit();
                     is_play = 0;
+                     
                 }
                 music = Mix_LoadMUS(const_cast<char *>(playing_list[media_file_index].c_str()));
                 if (!music)
@@ -1188,6 +1229,7 @@ void Application::Screen_play_media_act()
                     Mix_CloseAudio();
                     SDL_Quit();
                     is_play = 0;
+                     
                 }
                 if (Mix_PlayMusic(music, -1) == -1)
                 {
@@ -1196,6 +1238,7 @@ void Application::Screen_play_media_act()
                     Mix_CloseAudio();
                     SDL_Quit();
                     is_play = 0;
+                     
                 }
             }
             else
@@ -1220,6 +1263,7 @@ void Application::Screen_play_media_act()
                     Screen_stack.top()->send_data_to_port(SEND_TO_PORT, IS_PLAYING);
                 }
             }
+            Screen_stack.top()->is_play = 1;
         exit_r:
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
@@ -1446,10 +1490,10 @@ void Application::thread_play_media()
         }
         if (!is_back) {
             Screen_stack.top()->display((int)difftime(current, last), media_file_index);
-            Screen_stack.top()->printMedia(page, total_page);
+            Screen_stack.top()->printMedia(media_file_index / 10, total_page, 1);
             Screen_stack.top()->print_orther();
             if (Screen_stack.top()->serial_port == -1) {
-                std::cout << "HERE\n";
+                // std::cout << "HERE\n";
             }
         }
         if (difftime(current, last) >= GetDuration(playing_list[media_file_index]) && !is_replay)
@@ -1476,6 +1520,7 @@ void Application::thread_play_media()
             if (err_idx == media_file_index && err && err_cnt == size)
             {
                 is_play = 0;
+                 
                 err_1 = 1;
                 err = 0;
                 err_cnt = 0;
