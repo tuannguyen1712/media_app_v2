@@ -9,6 +9,15 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define SEND_TO_PORT        0xFFu
+#define RESPONSE            0X00U
+
+#define IS_PLAYING          0xFFu
+#define IS_STOPPING         0x00u
+
+#define RESENT_REQUEST      0x00u
+#define ERROR_MSG           0xFFu
+
 bool pathExists(const char *path);
 std::string getUsername();
 std::vector<std::string> findUSBs(const std::string &userPath);

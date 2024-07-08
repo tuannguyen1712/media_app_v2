@@ -28,12 +28,6 @@
 #define FILES_PER_PAGE 10
 #define PLAYLIST_NUM 25
 
-#define SEND_TO_PORT    0xFFu
-#define RESPONSE        0X00U
-
-#define IS_PLAYING      0xFFu
-#define IS_STOPPING     0x00u
-
 class Application
 {
 private:

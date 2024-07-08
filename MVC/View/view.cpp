@@ -26,6 +26,18 @@ int Screen1::replay = 0;
 
 int Screen1::serial_port = -1;
 int Screen1::playing_index = 0;
+std::thread Screen1::thread_serial;
+
+int Screen1::rcv_done = 0;
+int Screen1::serial_data = 0;
+int Screen1::read_buf_cnt = 0;
+uint64_t Screen1::last_rcv = 0;
+// Allocate memory for read buffer, set size according to your needs
+char Screen1::read_buf[256] = "";
+uint8_t Screen1::last_serial_port_msg[4] = "";
+std::mutex Screen1::mtx;
+
+int Screen1::is_play = -1;
 
 void Screen1::setMedia(std::vector<std::string> &input)
 {
@@ -43,7 +55,7 @@ void Screen1::setMedia(std::vector<std::string> &input)
     }
 }
 
-void Screen1::printMedia(const int &page, const int &total_page)
+void Screen1::printMedia(const int &page, const int &total_page, int screen_play)
 {
     std::cout << std::endl
               << std::setw(4) << std::left << "Num" << "| " << std::setw(TITLE_WIDTH) << std::left << "Name"
@@ -55,7 +67,8 @@ void Screen1::printMedia(const int &page, const int &total_page)
     std::cout << "-------------------------------------------------------------------------------------------------------------------------" << std::endl;
     for (int i = page * FILES_PER_PAGE + 1; i <= (page + 1) * FILES_PER_PAGE && i <= (int)media.size(); i++)
     {
-        if (i == playing_index) {
+        if (i == playing_index && screen_play) 
+        {
             std::cout << "\033[1;30;47m";
         }
         std::cout << std::setw(4) << std::left << i;
@@ -70,7 +83,7 @@ void Screen1::printMedia(const int &page, const int &total_page)
                   << "| " << std::setw(YEAR_WIDTH) << std::left << media[i - 1].year
                   << "| " << std::setw(EXTENSION_WIDTH) << std::left << media[i - 1].extension;
         printf("| %02d:%02d", media[i - 1].duration / 60, media[i - 1].duration % 60);
-        if (i == playing_index)
+        if (i == playing_index && screen_play)
         {
             std::cout << "\033[0m";
         }
@@ -740,6 +753,15 @@ void Screen1::thread_read_serial_port(void)
     uint8_t rx_buf[8];
     memset(rx_buf, 0, sizeof(rx_buf));
     read_buf_cnt = 0;
+    if (is_play != -1) {
+        if (is_play == 0) {
+            send_data_to_port(SEND_TO_PORT, IS_STOPPING);
+        }
+        if (is_play == 1)
+        {
+            send_data_to_port(SEND_TO_PORT, IS_PLAYING);
+        }
+    }
     while (!rcv_done)
     {
         // std::cout << rcv_done << std::endl;
@@ -751,15 +773,35 @@ void Screen1::thread_read_serial_port(void)
             read_buf_cnt++;
             last_rcv = getMillisecondsSinceEpoch();
         }
-        if (getMillisecondsSinceEpoch() - last_rcv > 20 && read_buf_cnt >= 3)
+        if (getMillisecondsSinceEpoch() - last_rcv > 10 && read_buf_cnt >= 3)
         {
-            rcv_done = 1;
-            serial_data = 1;
-            rx_buf[sizeof(rx_buf)] = 0;
+            if ((uint8_t) (rx_buf[0] + rx_buf[1]) == rx_buf[2])
+            {
+                // std::cout << "Value: " << std::setw(2) << std::setfill('0') << std::hex << static_cast<short>(rx_buf[0]) << std::endl;
+                // std::cout << "Value: " << std::setw(2) << std::setfill('0') << std::hex << static_cast<short>(rx_buf[1]) << std::endl;
+                // std::cout << "Value: " << std::setw(2) << std::setfill('0') << std::hex << static_cast<short>(rx_buf[2]) << std::endl;
+                // std::cout << (rx_buf[0] + rx_buf[1] == rx_buf[2]) << std::endl;
+                // sleep(5);
+                if (rx_buf[0] != 0x00) {
+                    rcv_done = 1;
+                    serial_data = 1;
+                    rx_buf[sizeof(rx_buf)] = 0;
+                    
+                }
+                else {
+                    write(serial_port, last_serial_port_msg, sizeof(last_serial_port_msg) - 1);
+                    // std::cout << "Value: " << std::setw(2) << std::setfill('0') << std::hex << static_cast<short>(last_serial_port_msg[0]) << std::endl;
+                    // std::cout << "Value: " << std::setw(2) << std::setfill('0') << std::hex << static_cast<short>(last_serial_port_msg[1]) << std::endl;
+                    // std::cout << "Value: " << std::setw(2) << std::setfill('0') << std::hex << static_cast<short>(last_serial_port_msg[2]) << std::endl;
+                }
+            }
+            else {
+                send_data_to_port(RESENT_REQUEST, ERROR_MSG);
+            }
         }
     }
     if (serial_data == 1) {
-        if (rx_buf[0] == 0)
+        if (rx_buf[0] == 0x0F)
         {
             mtx.lock();
             sprintf(read_buf, "v%d", rx_buf[1]);
@@ -776,12 +818,12 @@ void Screen1::thread_read_serial_port(void)
                 break;
             case 0x02:
                 mtx.lock();
-                sprintf(read_buf, "R");
+                sprintf(read_buf, "S");
                 mtx.unlock();
                 break;
             case 0x03:
                 mtx.lock();
-                sprintf(read_buf, "S");
+                sprintf(read_buf, "R");
                 mtx.unlock();
                 break;
             case 0x04:
@@ -814,7 +856,7 @@ int Screen1::read_from_keyboard(char *buff, uint32_t len, uint32_t sec)
     int retval;
 
     // Chỉnh timeout là 5 giây
-    tv.tv_sec = sec;
+    tv.tv_sec = 1;
     tv.tv_usec = 0;
 
     // Xóa tất cả các bit của readfds
@@ -844,7 +886,6 @@ int Screen1::read_from_keyboard(char *buff, uint32_t len, uint32_t sec)
     }
     else
     {
-        // std::cout << "Không có dữ liệu nhập từ bàn phím trong vòng 1 giây.\n";
         return 0;
     }
 }
@@ -881,7 +922,7 @@ void Screen1::get_Choice()
     while (!rcv_done)
     {
         // std::cout << rcv_done << std::endl;
-        if (read_from_keyboard(read_buf, 8, 1)) {
+        if (read_from_keyboard(read_buf, 257, 1)) {
             rcv_done = 1;
             serial_data = 0;
         }
@@ -899,8 +940,11 @@ void Screen1::send_data_to_port(uint8_t type, uint8_t data)
 {
     if(serial_port != -1) {
         uint8_t tx[4];
+        
         packing_frame_data(tx, 4, type, data);
+        memcpy(last_serial_port_msg, tx, sizeof(tx));
         write(serial_port, tx, sizeof(tx) - 1);
+        
     }
 } 
 

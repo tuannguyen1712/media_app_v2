@@ -86,8 +86,8 @@ void packing_frame_data(uint8_t *output, uint8_t len, uint8_t type, uint8_t valu
     }
     tmp[0] = type;
     tmp[1] = value;
-    tmp[3] = type + value;
-    tmp[4] = 0;
+    tmp[2] = (uint8_t) (type + value);
+    tmp[3] = 0;
     memcpy(output, tmp, 4);
 }
 

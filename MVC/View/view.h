@@ -39,15 +39,15 @@ class Screen1
 {
     int id = 0;
 
-protected:
-    int rcv_done;
-    int serial_data = 0;
+// protected:
+//     int rcv_done;
+//     int serial_data = 0;
     
-    int read_buf_cnt = 0;
-    uint64_t last_rcv = 0;
-    // Allocate memory for read buffer, set size according to your needs
-    char read_buf[256];
-    std::mutex mtx;
+//     int read_buf_cnt = 0;
+//     uint64_t last_rcv = 0;
+//     // Allocate memory for read buffer, set size according to your needs
+//     char read_buf[256];
+//     std::mutex mtx;
 
 
 public:
@@ -61,11 +61,22 @@ public:
 
     static int serial_port;
     static int playing_index;
-    std::thread thread_serial;
+    static std::thread thread_serial;
+
+    static int rcv_done;
+    static int serial_data;
+    static int read_buf_cnt;
+    static uint64_t last_rcv;
+    // Allocate memory for read buffer, set size according to your needs
+    static char read_buf[256];
+    static uint8_t last_serial_port_msg[4];
+    static std::mutex mtx;
+
+    static int is_play;
 
     Screen1(){};
     void setMedia(std::vector<std::string> &input);
-    void printMedia(const int &page, const int &total_page);
+    void printMedia(const int &page, const int &total_page, int screen_play);
     void set_playlist_name(const std::string &pl_name);
     void print_playlist_name(const int &index);
     void print_orther();
