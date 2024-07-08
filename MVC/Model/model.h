@@ -6,7 +6,7 @@
 #include <filesystem>
 #include <iostream>
 
-#define SRC "/data/fpt_fresher/playlist/" // edit this
+#define SRC "/home/tung/Workspace/Mock_cpp/Playslists/" // edit this
 
 class Media
 {
