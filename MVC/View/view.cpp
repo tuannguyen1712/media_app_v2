@@ -762,6 +762,7 @@ void Screen1::thread_read_serial_port(void)
             send_data_to_port(SEND_TO_PORT, IS_PLAYING);
         }
     }
+    //  std::cout << "HERE5" << std::endl;
     while (!rcv_done)
     {
         // std::cout << rcv_done << std::endl;
@@ -769,14 +770,20 @@ void Screen1::thread_read_serial_port(void)
         int num_bytes = read(serial_port, &chr, 1);
         if (num_bytes)
         {
-            rx_buf[read_buf_cnt] = chr;
-            read_buf_cnt++;
-            last_rcv = getMillisecondsSinceEpoch();
+            if (read_buf_cnt <= 8) {
+                rx_buf[read_buf_cnt] = chr;
+                read_buf_cnt++;
+                last_rcv = getMillisecondsSinceEpoch();
+            }
+            else {
+                memset(read_buf, 0, sizeof(read_buf));
+            }
         }
         if (getMillisecondsSinceEpoch() - last_rcv > 10 && read_buf_cnt >= 3)
         {
             if ((uint8_t) (rx_buf[0] + rx_buf[1]) == rx_buf[2])
             {
+                //  std::cout << "HERE6" << std::endl;
                 // std::cout << "Value: " << std::setw(2) << std::setfill('0') << std::hex << static_cast<short>(rx_buf[0]) << std::endl;
                 // std::cout << "Value: " << std::setw(2) << std::setfill('0') << std::hex << static_cast<short>(rx_buf[1]) << std::endl;
                 // std::cout << "Value: " << std::setw(2) << std::setfill('0') << std::hex << static_cast<short>(rx_buf[2]) << std::endl;
@@ -789,6 +796,7 @@ void Screen1::thread_read_serial_port(void)
                     
                 }
                 else {
+                    //   std::cout << "HERE7" << std::endl;
                     write(serial_port, last_serial_port_msg, sizeof(last_serial_port_msg) - 1);
                     // std::cout << "Value: " << std::setw(2) << std::setfill('0') << std::hex << static_cast<short>(last_serial_port_msg[0]) << std::endl;
                     // std::cout << "Value: " << std::setw(2) << std::setfill('0') << std::hex << static_cast<short>(last_serial_port_msg[1]) << std::endl;
@@ -800,6 +808,7 @@ void Screen1::thread_read_serial_port(void)
             }
         }
     }
+    
     if (serial_data == 1) {
         if (rx_buf[0] == 0x0F)
         {
@@ -904,13 +913,14 @@ long long Screen1::getMillisecondsSinceEpoch()
 
 void Screen1::get_Choice()
 {
+    //std::cout << "HERE" << std::endl;
     serial_port = Init_Serialport();
-
+    //  std::cout << "HERE2" << std::endl;
     rcv_done = 0;
     serial_data = 0;
 
     memset(read_buf, 0, strlen(read_buf));
-
+    //  std::cout << "HERE3" << std::endl;
     if (serial_port != -1)
     {
         //  thread_serial = std::thread(thread_read_serial_port);
@@ -918,7 +928,7 @@ void Screen1::get_Choice()
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
         tcflush(serial_port, TCIOFLUSH);
     }
-
+    //  std::cout << "HERE4" << std::endl;
     while (!rcv_done)
     {
         // std::cout << rcv_done << std::endl;
@@ -929,11 +939,6 @@ void Screen1::get_Choice()
         // std::cout << rcv_done << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
-    // if (serial_port != -1)
-    // {
-    //     thread_serial.join();
-    //     //close(serial_port);
-    // }
 }
 
 void Screen1::send_data_to_port(uint8_t type, uint8_t data)
