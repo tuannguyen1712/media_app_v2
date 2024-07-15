@@ -213,6 +213,17 @@ void Application::Screen_start_act()
         }
         menu = pre_menu;
     }
+    else if (opt.length() > 1 && opt[0] == 'v')
+    {
+        try
+        {
+            volume = std::stoi(opt.substr(1)) * 16;
+        }
+        catch (const std::exception &e)
+        {
+            // do nothing
+        }
+    }
     try {
         menu = std::stoi(opt) - 1;
     }
@@ -233,6 +244,17 @@ void Application::Screen_find_act()
         Screen_stack.push(new Screen_find_result);
         find_files(const_cast<char *>(opt.c_str()), list_files, cnt);
         Screen_stack.top()->setMedia(list_files);
+    }
+    else if (opt.length() > 1 && opt[0] == 'v')
+    {
+        try
+        {
+            volume = std::stoi(opt.substr(1)) * 16;
+        }
+        catch (const std::exception &e)
+        {
+            // do nothing
+        }
     }
 }
 
@@ -284,6 +306,17 @@ void Application::Screen_find_result_act()
                 page = total_page - 1;
             }
         }
+        else if (opt.length() > 1 && opt[0] == 'v')
+        {
+            try
+            {
+                volume = std::stoi(opt.substr(1)) * 16;
+            }
+            catch (const std::exception &e)
+            {
+                // do nothing
+            }
+        }
     }
 }
 
@@ -309,6 +342,17 @@ void Application::Screen_usb_act()
             delete Screen_stack.top();
             Screen_stack.pop();
             list_files.clear();
+        }
+        else if (opt.length() > 1 && opt[0] == 'v')
+        {
+            try
+            {
+                volume = std::stoi(opt.substr(1)) * 16;
+            }
+            catch (const std::exception &e)
+            {
+                // do nothing
+            }
         }
     }
 }
@@ -349,6 +393,17 @@ void Application::Screen_playlist_act()
         {
             Screen_stack.push(new Screen_playlist_delete);
         }
+        else if (opt.length() > 1 && opt[0] == 'v')
+        {
+            try
+            {
+                volume = std::stoi(opt.substr(1)) * 16;
+            }
+            catch (const std::exception &e)
+            {
+                // do nothing
+            }
+        }
     }
 }
 
@@ -360,6 +415,17 @@ void Application::Screen_playlist_add_act()
     {
         delete Screen_stack.top();
         Screen_stack.pop();
+    }
+    else if (opt.length() > 1 && opt[0] == 'v')
+    {
+        try
+        {
+            volume = std::stoi(opt.substr(1)) * 16;
+        }
+        catch (const std::exception &e)
+        {
+            // do nothing
+        }
     }
     else
     {
@@ -377,6 +443,17 @@ void Application::Screen_playlist_delete_act()
     {
         delete Screen_stack.top();
         Screen_stack.pop();
+    }
+    else if (opt.length() > 1 && opt[0] == 'v')
+    {
+        try
+        {
+            volume = std::stoi(opt.substr(1)) * 16;
+        }
+        catch (const std::exception &e)
+        {
+            // do nothing
+        }
     }
     try
     {
@@ -457,6 +534,17 @@ void Application::Screen_playlist_element_act()
             else if (page == 0)
             {
                 page = total_page - 1;
+            }
+        }
+        else if (opt.length() > 1 && opt[0] == 'v')
+        {
+            try
+            {
+                volume = std::stoi(opt.substr(1)) * 16;
+            }
+            catch (const std::exception &e)
+            {
+                // do nothing
             }
         }
     }
@@ -542,6 +630,17 @@ void Application::Screen_playlist_element_add_list_act()
             delete Screen_stack.top();
             Screen_stack.pop();
         }
+        else if (opt.length() > 1 && opt[0] == 'v')
+        {
+            try
+            {
+                volume = std::stoi(opt.substr(1)) * 16;
+            }
+            catch (const std::exception &e)
+            {
+                // do nothing
+            }
+        }
     }
 }
 
@@ -593,6 +692,17 @@ void Application::Screen_playlist_element_delete_act()
                 page = total_page - 1;
             }
         }
+        else if (opt.length() > 1 && opt[0] == 'v')
+        {
+            try
+            {
+                volume = std::stoi(opt.substr(1)) * 16;
+            }
+            catch (const std::exception &e)
+            {
+                // do nothing
+            }
+        }
     }
 }
 
@@ -606,6 +716,17 @@ void Application::Screen_playlist_rename_act()
     {
         delete Screen_stack.top();
         Screen_stack.pop();
+    }
+    else if (opt.length() > 1 && opt[0] == 'v')
+    {
+        try
+        {
+            volume = std::stoi(opt.substr(1)) * 16;
+        }
+        catch (const std::exception &e)
+        {
+            // do nothing
+        }
     }
     else
     {
@@ -624,6 +745,17 @@ void Application::Screen_media_detail_act()
     {
         delete Screen_stack.top();
         Screen_stack.pop();
+    }
+    else if (opt.length() > 1 && opt[0] == 'v')
+    {
+        try
+        {
+            volume = std::stoi(opt.substr(1)) * 16;
+        }
+        catch (const std::exception &e)
+        {
+            // do nothing
+        }
     }
     else if (opt == "P" || opt == "p")
     {
@@ -813,6 +945,17 @@ void Application::Screen_media_rename_act()
     {
         delete Screen_stack.top();
         Screen_stack.pop();
+    }
+    else if (opt.length() > 1 && opt[0] == 'v')
+    {
+        try
+        {
+            volume = std::stoi(opt.substr(1)) * 16;
+        }
+        catch (const std::exception &e)
+        {
+            // do nothing
+        }
     }
     else
     {

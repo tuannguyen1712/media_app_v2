@@ -797,10 +797,10 @@ void Screen1::thread_read_serial_port(void)
                 }
                 else {
                     //   std::cout << "HERE7" << std::endl;
-                    write(serial_port, last_serial_port_msg, sizeof(last_serial_port_msg) - 1);
-                    // std::cout << "Value: " << std::setw(2) << std::setfill('0') << std::hex << static_cast<short>(last_serial_port_msg[0]) << std::endl;
-                    // std::cout << "Value: " << std::setw(2) << std::setfill('0') << std::hex << static_cast<short>(last_serial_port_msg[1]) << std::endl;
-                    // std::cout << "Value: " << std::setw(2) << std::setfill('0') << std::hex << static_cast<short>(last_serial_port_msg[2]) << std::endl;
+                    // write(serial_port, last_serial_port_msg, sizeof(last_serial_port_msg) - 1);
+                    // // std::cout << "Value: " << std::setw(2) << std::setfill('0') << std::hex << static_cast<short>(last_serial_port_msg[0]) << std::endl;
+                    // // std::cout << "Value: " << std::setw(2) << std::setfill('0') << std::hex << static_cast<short>(last_serial_port_msg[1]) << std::endl;
+                    // // std::cout << "Value: " << std::setw(2) << std::setfill('0') << std::hex << static_cast<short>(last_serial_port_msg[2]) << std::endl;
                 }
             }
             else {
