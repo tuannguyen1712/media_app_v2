@@ -76,3 +76,36 @@ std::vector<std::string> checkUSB()
     std::string userPath = "/media/" + username;
     return findUSBs(userPath);
 }
+
+void packing_frame_data(uint8_t *output, uint8_t len, uint8_t type, uint8_t value)
+{
+    uint8_t tmp[4];
+    if (len != 4)
+    {
+        return;
+    }
+    tmp[0] = type;
+    tmp[1] = value;
+    tmp[2] = (uint8_t) (type + value);
+    tmp[3] = 0;
+    memcpy(output, tmp, 4);
+}
+
+std::string detect_serial_port()
+{
+    struct dirent *entry;
+    DIR *dp = opendir("/dev");
+    if (dp != NULL)
+    {
+        while ((entry = readdir(dp)))
+        {
+            if (strncmp(entry->d_name, "ttyACM", 6) == 0)
+            {
+                closedir(dp);
+                return std::string(entry->d_name);
+            }
+        }
+        closedir(dp);
+    }
+    return "";
+}

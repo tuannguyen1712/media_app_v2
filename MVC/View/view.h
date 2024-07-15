@@ -2,7 +2,28 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <chrono>
 #include <model.h>
+#include <mutex>
+#include <iomanip>
+
+#include <stdio.h>
+#include <string.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <thread>
+#include <sys/select.h>
+#include <time.h>
+#include <cstring>
+#include <dirent.h>
+
+// Linux headers
+#include <fcntl.h>   // Contains file controls like O_RDWR
+#include <errno.h>   // Error integer and strerror() function
+#include <termios.h> // Contains POSIX terminal control definitions
+#include <unistd.h>  // write(), read(), close()
+#include <utility.h>
+
 #include "taglib.h"
 // #include "control.h"
 
@@ -18,19 +39,55 @@ class Screen1
 {
     int id = 0;
 
+// protected:
+//     int rcv_done;
+//     int serial_data = 0;
+    
+//     int read_buf_cnt = 0;
+//     uint64_t last_rcv = 0;
+//     // Allocate memory for read buffer, set size according to your needs
+//     char read_buf[256];
+//     std::mutex mtx;
+
+
 public:
+    
     static std::vector<Media> media;
     static std::string playlist;
     static std::string name;
     static std::vector<std::string> usb_path;
     static int volume;
     static int replay;
+
+    static int serial_port;
+    static int playing_index;
+    static std::thread thread_serial;
+
+    static int rcv_done;
+    static int serial_data;
+    static int read_buf_cnt;
+    static uint64_t last_rcv;
+    // Allocate memory for read buffer, set size according to your needs
+    static char read_buf[256];
+    static uint8_t last_serial_port_msg[4];
+    static std::mutex mtx;
+
+    static int is_play;
+
     Screen1(){};
     void setMedia(std::vector<std::string> &input);
-    void printMedia(const int &page, const int &total_page);
+    void printMedia(const int &page, const int &total_page, int screen_play);
     void set_playlist_name(const std::string &pl_name);
     void print_playlist_name(const int &index);
     void print_orther();
+
+    void thread_read_serial_port(void);
+    int read_from_keyboard(char *buff, uint32_t len, uint32_t sec);
+    int Init_Serialport();
+    long long getMillisecondsSinceEpoch();
+    void get_Choice();
+    void send_data_to_port(uint8_t type, uint8_t data);
+
     virtual ~Screen1(){};
     virtual void display(int input = 0, int input1 = 0) = 0;
     virtual std::string getChoice() = 0;
@@ -191,30 +248,6 @@ public:
 };
 
 void clean_stdin();
-// class Screen_playlist_edit : public Screen
-// {
-// public:
-//     void display(int input = 0, int input1 = 0);
-//     std::string getChoice();
-// };
-
-// class Screen_playlist_delete : public Screen
-// {
-// public:
-//     void display(int input = 0, int input1 = 0);
-//     std::string getChoice();
-// };
-
-// class Screen_playlist_delete : public Screen
-// {
-// public:
-//     void display(int input = 0, int input1 = 0);
-//     std::string getChoice();
-// };
-
-// void clean_stdin();
-// void clear_terminal();
-
 size_t utf8_strlen(const std::string &str);
 std::string truncate_utf8(const std::string &str, size_t max_length);
 std::string left_align(const std::string &str, size_t width);
